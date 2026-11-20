@@ -44,7 +44,7 @@ styles, `CoreAppsUI` wraps the difference.
 | App | Flavor | State |
 | --- | --- | --- |
 | Calculator | Guest | Works as a native program; builds as a guest for the machine at hand; no bundle has been built or run in a host |
-| Files | Native | Browses folders from a list of locations, sorts, shows hidden files and a file's details; doesn't open, move or delete anything yet |
+| Files | Native | Browses folders from a list of locations, sorts, shows hidden files and a file's details; makes folders, renames, and moves to the trash (freedesktop.org's on Linux). Doesn't open, copy or move anything yet, and has no view of the trash |
 
 The others in the plan aren't started.
 
