@@ -132,3 +132,253 @@ import Testing
         #expect(Location.title(for: URL(fileURLWithPath: "/home/user/Projects"), among: locations) == "Projects")
     }
 }
+
+/// A folder of its own for a test, removed afterwards.
+private func withScratchFolder(_ body: (URL) throws -> Void) throws {
+    let folder = FileManager.default.temporaryDirectory
+        .appendingPathComponent("FilesCoreTests-\(UUID().uuidString)", isDirectory: true)
+        .resolvingSymlinksInPath()
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: folder) }
+    try body(folder)
+}
+
+private func exists(_ url: URL) -> Bool {
+    FileManager.default.fileExists(atPath: url.path)
+}
+
+@Suite struct FileNameTests {
+
+    @Test func namesAreCleanedOfSpaceAroundThem() {
+        #expect(FileName.cleaned("  Notes \n") == "Notes")
+    }
+
+    @Test func problems() {
+        #expect(FileName.problem(with: "Notes.txt") == nil)
+        #expect(FileName.problem(with: ".hidden") == nil)
+        #expect(FileName.problem(with: "") == .empty)
+        #expect(FileName.problem(with: "a/b") == .containsSlash)
+        #expect(FileName.problem(with: ".") == .reserved)
+        #expect(FileName.problem(with: "..") == .reserved)
+        #expect(FileName.problem(with: String(repeating: "a", count: 255)) == nil)
+        #expect(FileName.problem(with: String(repeating: "a", count: 256)) == .tooLong)
+        // 128 two-byte characters are 256 bytes.
+        #expect(FileName.problem(with: String(repeating: "é", count: 128)) == .tooLong)
+    }
+
+    @Test func aFreeNameIsKept() {
+        #expect(FileName.unique("Notes.txt", among: ["Other.txt"]) == "Notes.txt")
+    }
+
+    @Test func aTakenNameGetsTheFirstFreeNumberBeforeItsExtension() {
+        #expect(FileName.unique("Notes.txt", among: ["Notes.txt"]) == "Notes 2.txt")
+        #expect(FileName.unique("Notes.txt", among: ["Notes.txt", "Notes 2.txt"]) == "Notes 3.txt")
+        #expect(FileName.unique("New Folder", among: ["New Folder"]) == "New Folder 2")
+        #expect(FileName.unique("archive.tar.gz", among: ["archive.tar.gz"]) == "archive.tar 2.gz")
+    }
+
+    @Test func aHiddenFilesDotIsNotAnExtension() {
+        #expect(FileName.unique(".config", among: [".config"]) == ".config 2")
+    }
+}
+
+@Suite struct FileOperationsTests {
+
+    @Test func newFoldersAreNumberedWhenTheNameIsTaken() throws {
+        try withScratchFolder { folder in
+            let first = try FileOperations.createFolder(in: folder)
+            let second = try FileOperations.createFolder(in: folder)
+            #expect(first.lastPathComponent == "New Folder")
+            #expect(second.lastPathComponent == "New Folder 2")
+            #expect(try DirectoryListing.load(folder).map(\.name) == ["New Folder", "New Folder 2"])
+            #expect(try DirectoryListing.load(folder).allSatisfy(\.isFolder))
+        }
+    }
+
+    @Test func aFolderCantBeMadeWithABadName() throws {
+        try withScratchFolder { folder in
+            #expect(throws: FileName.Problem.containsSlash) {
+                try FileOperations.createFolder(named: "a/b", in: folder)
+            }
+            #expect(throws: FileName.Problem.empty) {
+                try FileOperations.createFolder(named: "   ", in: folder)
+            }
+            let items = try DirectoryListing.load(folder)
+            #expect(items.isEmpty)
+        }
+    }
+
+    @Test func renamingMovesAnItemWithinItsFolder() throws {
+        try withScratchFolder { folder in
+            let file = folder.appendingPathComponent("a.txt")
+            try Data("hello".utf8).write(to: file)
+            let renamed = try FileOperations.rename(file, to: " b.txt ")
+            #expect(renamed.lastPathComponent == "b.txt")
+            #expect(!exists(file))
+            #expect(try String(contentsOf: renamed, encoding: .utf8) == "hello")
+        }
+    }
+
+    @Test func renamingToTheSameNameDoesNothing() throws {
+        try withScratchFolder { folder in
+            let file = folder.appendingPathComponent("a.txt")
+            try Data().write(to: file)
+            #expect(try FileOperations.rename(file, to: "a.txt") == file)
+            #expect(exists(file))
+        }
+    }
+
+    @Test func renamingNeverReplacesAnotherItem() throws {
+        try withScratchFolder { folder in
+            let first = folder.appendingPathComponent("a.txt"), second = folder.appendingPathComponent("b.txt")
+            try Data("a".utf8).write(to: first)
+            try Data("b".utf8).write(to: second)
+            #expect(throws: FileOperations.Failure.nameTaken("b.txt")) {
+                try FileOperations.rename(first, to: "b.txt")
+            }
+            #expect(throws: FileName.Problem.reserved) {
+                try FileOperations.rename(first, to: "..")
+            }
+            #expect(try String(contentsOf: first, encoding: .utf8) == "a")
+            #expect(try String(contentsOf: second, encoding: .utf8) == "b")
+        }
+    }
+}
+
+@Suite struct TrashTests {
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    @Test func theHomeTrashFollowsXDGDataHome() {
+        let home = URL(fileURLWithPath: "/home/user", isDirectory: true)
+        #expect(Trash.home(environment: [:], homeDirectory: home).directory.path == "/home/user/.local/share/Trash")
+        #expect(Trash.home(environment: ["XDG_DATA_HOME": "/data"], homeDirectory: home).directory.path == "/data/Trash")
+        // The variable must hold an absolute path to count.
+        #expect(Trash.home(environment: ["XDG_DATA_HOME": "data"], homeDirectory: home).directory.path == "/home/user/.local/share/Trash")
+    }
+
+    @Test func aRecordHasThePathEncodedAndTheLocalTime() {
+        // 2026-11-20 09:05:07 UTC.
+        let date = Date(timeIntervalSince1970: 1_795_165_507)
+        let record = Trash.record(path: "/home/user/My Notes/café.txt", date: date, calendar: calendar)
+        #expect(record == "[Trash Info]\nPath=/home/user/My%20Notes/caf%C3%A9.txt\nDeletionDate=2026-11-20T09:05:07\n")
+    }
+
+    @Test func recordsAreParsed() {
+        let parsed = Trash.parse(record: "# comment\n[Trash Info]\nDeletionDate=2026-01-02T03:04:05\nPath=/a/b%20c.txt\n")
+        #expect(parsed?.path == "/a/b c.txt")
+        #expect(parsed?.deletionDate == "2026-01-02T03:04:05")
+        #expect(Trash.parse(record: "Path=/a\n") == nil)
+        #expect(Trash.parse(record: "[Trash Info]\nPath=relative\n") == nil)
+        #expect(Trash.parse(record: "[Trash Info]\n[Other]\nPath=/a\n") == nil)
+    }
+
+    @Test func trashingMovesAnItemAndRecordsWhereItWas() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let file = folder.appendingPathComponent("a file.txt")
+            try Data("hello".utf8).write(to: file)
+
+            let trashed = try trash.trash(file, at: Date(timeIntervalSince1970: 1_795_165_507), calendar: calendar)
+
+            #expect(!exists(file))
+            #expect(trashed == trash.files.appendingPathComponent("a file.txt"))
+            #expect(try String(contentsOf: trashed, encoding: .utf8) == "hello")
+            let record = try String(contentsOf: trash.info.appendingPathComponent("a file.txt.trashinfo"), encoding: .utf8)
+            #expect(record.contains("Path=\(folder.path)/a%20file.txt\n"))
+            #expect(record.contains("DeletionDate=2026-11-20T09:05:07\n"))
+            #expect(trash.items() == [Trash.Item(url: trashed, originalURL: file, deletionDate: "2026-11-20T09:05:07")])
+        }
+    }
+
+    @Test func itemsOfTheSameNameAreKeptApart() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let file = folder.appendingPathComponent("a.txt")
+            try Data("one".utf8).write(to: file)
+            let first = try trash.trash(file)
+            try Data("two".utf8).write(to: file)
+            let second = try trash.trash(file)
+
+            #expect(first.lastPathComponent == "a.txt")
+            #expect(second.lastPathComponent == "a 2.txt")
+            #expect(try String(contentsOf: first, encoding: .utf8) == "one")
+            #expect(try String(contentsOf: second, encoding: .utf8) == "two")
+            #expect(trash.items().map(\.originalURL) == [file, file])
+        }
+    }
+
+    @Test func aFolderIsTrashedWithWhatItHolds() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let inner = try FileOperations.createFolder(named: "Inner", in: folder)
+            try Data("x".utf8).write(to: inner.appendingPathComponent("x.txt"))
+            let trashed = try trash.trash(inner)
+            #expect(!exists(inner))
+            #expect(exists(trashed.appendingPathComponent("x.txt")))
+        }
+    }
+
+    @Test func trashingSomethingThatIsNotThereLeavesNoRecord() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            #expect(throws: (any Error).self) {
+                try trash.trash(folder.appendingPathComponent("missing.txt"))
+            }
+            let records = try FileManager.default.contentsOfDirectory(atPath: trash.info.path)
+            #expect(trash.items().isEmpty)
+            #expect(records.isEmpty)
+        }
+    }
+
+    @Test func restoringPutsAnItemBackAndRemovesItsRecord() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let parent = try FileOperations.createFolder(named: "Parent", in: folder)
+            let file = parent.appendingPathComponent("a.txt")
+            try Data("hello".utf8).write(to: file)
+            try trash.trash(file)
+            // The folder it was in is gone by the time it's put back.
+            try FileManager.default.removeItem(at: parent)
+
+            let item = try #require(trash.items().first)
+            #expect(try trash.restore(item) == file)
+            #expect(try String(contentsOf: file, encoding: .utf8) == "hello")
+            #expect(trash.items().isEmpty)
+        }
+    }
+
+    @Test func restoringNeverReplacesAnotherItem() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let file = folder.appendingPathComponent("a.txt")
+            try Data("old".utf8).write(to: file)
+            try trash.trash(file)
+            try Data("new".utf8).write(to: file)
+
+            let item = try #require(trash.items().first)
+            #expect(throws: FileOperations.Failure.nameTaken("a.txt")) {
+                try trash.restore(item)
+            }
+            #expect(try String(contentsOf: file, encoding: .utf8) == "new")
+            #expect(trash.items().count == 1)
+        }
+    }
+
+    @Test func emptyingDeletesItemsAndRecords() throws {
+        try withScratchFolder { folder in
+            let trash = Trash(directory: folder.appendingPathComponent("Trash"))
+            let file = folder.appendingPathComponent("a.txt")
+            try Data().write(to: file)
+            try trash.trash(file)
+            try trash.empty()
+            #expect(trash.items().isEmpty)
+            #expect(try FileManager.default.contentsOfDirectory(atPath: trash.files.path) == [])
+            #expect(try FileManager.default.contentsOfDirectory(atPath: trash.info.path) == [])
+        }
+    }
+}
