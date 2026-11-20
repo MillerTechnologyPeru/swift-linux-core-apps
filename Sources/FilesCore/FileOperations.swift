@@ -12,6 +12,10 @@ public enum FileOperations {
     public enum Failure: Error, Hashable, Sendable {
         /// The folder already has an item with the name.
         case nameTaken(String)
+        /// A folder can't be copied or moved into itself.
+        case intoItself(String)
+        /// The system has nothing that does this.
+        case unsupported(String)
     }
 
     /// The names of a folder's items, hidden ones too.
@@ -52,15 +56,37 @@ public enum FileOperations {
         return destination
     }
 
-    /// Moves an item to the trash, from which it can be put back: the
+    /// Moves items to the trash, from which they can be put back: the
     /// system's on macOS, and elsewhere the user's home trash (which on iOS,
     /// having no trash of its own, is in the app's container).
-    public static func moveToTrash(_ item: URL) throws {
+    ///
+    /// - Returns: The change, for undoing.
+    @discardableResult
+    public static func moveToTrash(_ items: [URL]) throws -> FileChange {
         #if os(macOS)
-        try FileManager.default.trashItem(at: item, resultingItemURL: nil)
+        var transfers: [Transfer] = []
+        for item in items {
+            var trashed: NSURL?
+            try FileManager.default.trashItem(at: item, resultingItemURL: &trashed)
+            if let trashed = trashed as URL? {
+                transfers.append(Transfer(source: item, destination: trashed))
+            }
+        }
+        // Undone as a move back: the system's trash has no records to read.
+        return .moved(transfers)
         #else
-        try Trash.home().trash(item)
+        let trash = Trash.home()
+        var transfers: [Transfer] = []
+        for item in items {
+            transfers.append(Transfer(source: item, destination: try trash.trash(item)))
+        }
+        return .trashed(transfers, trash)
         #endif
+    }
+
+    /// Moves an item to the trash.
+    public static func moveToTrash(_ item: URL) throws {
+        try moveToTrash([item])
     }
 }
 
@@ -69,6 +95,8 @@ extension FileOperations.Failure: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case let .nameTaken(name): "There is already an item named “\(name)”."
+        case let .intoItself(name): "“\(name)” can't be put inside itself."
+        case let .unsupported(what): what
         }
     }
 }
