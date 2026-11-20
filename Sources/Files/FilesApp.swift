@@ -4,8 +4,8 @@
 //
 
 // The file manager sees the whole file system, which a guest can't: it is
-// a native app only.
-#if Native
+// a program only, on Cacao or on Apple's SwiftUI.
+#if Native || Apple
 
 import AppUI
 import CoreAppsUI
@@ -32,10 +32,17 @@ public struct FilesApp: App {
     }
 
     public var body: some Scene {
+        #if Native || os(macOS)
+        // On a desktop the window opens at a phone's size.
         WindowGroup("Files") {
             BrowserView(opening: Self.folderArgument)
         }
         .defaultSize(width: Metrics.phoneSize.width, height: Metrics.phoneSize.height)
+        #else
+        WindowGroup {
+            BrowserView(opening: Self.folderArgument)
+        }
+        #endif
     }
 }
 
