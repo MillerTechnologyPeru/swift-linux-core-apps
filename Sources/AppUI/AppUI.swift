@@ -16,6 +16,11 @@
 @_exported import CacaoSDL
 @_exported import Foundation
 
+#elseif Apple
+
+// A program on Apple's SwiftUI, on macOS and iOS.
+@_exported import SwiftUI
+
 #else
 
 // An AppRuntime guest: the frontend that sends a host's renderer the views.
