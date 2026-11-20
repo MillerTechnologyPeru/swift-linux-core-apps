@@ -32,11 +32,13 @@ let package = Package(
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
         .executable(name: "files", targets: ["FilesNative"]),
+        .executable(name: "images", targets: ["ImagesNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
         .library(name: "FilesCore", targets: ["FilesCore"]),
+        .library(name: "ImagesCore", targets: ["ImagesCore"]),
     ],
     traits: [
         .trait(
@@ -127,6 +129,30 @@ let package = Package(
         .testTarget(
             name: "FilesCoreTests",
             dependencies: ["FilesCore"]
+        ),
+
+        // MARK: - Images
+
+        // What the image viewer works out: formats, sizes, zooming. No UI
+        // and no Foundation, for the day it's a guest.
+        .target(
+            name: "ImagesCore"
+        ),
+        // The viewer's views. It finds a folder's images with the file
+        // manager's listing, and so is a program for now.
+        .target(
+            name: "Images",
+            dependencies: ["AppUI", "CoreAppsUI", "ImagesCore", "FilesCore"]
+        ),
+        .executableTarget(
+            name: "ImagesNative",
+            dependencies: [
+                .target(name: "Images", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "ImagesCoreTests",
+            dependencies: ["ImagesCore"]
         ),
     ]
 )
