@@ -3,8 +3,8 @@ import PackageDescription
 
 /// The core apps for Swift Linux.
 ///
-/// Each app is written once, in the part of SwiftUI that both of its hosts
-/// draw, and builds in one of two flavors, chosen by a package trait:
+/// Each app is written once, in the part of SwiftUI that all of its hosts
+/// draw, and builds in one of three flavors, chosen by a package trait:
 ///
 /// - `Guest` (the default): an AppRuntime guest, in Embedded Swift, drawing
 ///   through AppRuntime's SwiftUI frontend. `swift build` and `swift test`
@@ -15,23 +15,28 @@ import PackageDescription
 ///   bundle sandbox (the file manager and the software store), and for
 ///   running any app on a desktop while working on it:
 ///   `swift run --traits Native calculator`.
+/// - `Apple`: a program on Apple's own SwiftUI, for macOS and iOS. It shows
+///   an app as SwiftUI itself draws it, beside Cacao's drawing of the same
+///   source, and keeps the apps to SwiftUI that Apple's accepts.
 ///
 /// Apps import `AppUI`, which re-exports the flavor's SwiftUI.
 let package = Package(
     name: "CoreApps",
     platforms: [
         .macOS(.v14),
-        .iOS(.v15),
+        .iOS(.v17),
     ],
     products: [
         // Guest products: what `guest.py` builds a bundle from.
         .library(name: "Calculator", type: .static, targets: ["Calculator"]),
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
+        .executable(name: "files", targets: ["FilesNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
+        .library(name: "FilesCore", targets: ["FilesCore"]),
     ],
     traits: [
         .trait(
@@ -41,6 +46,10 @@ let package = Package(
         .trait(
             name: "Native",
             description: "Build apps as programs on Cacao. Use it alone: --traits Native."
+        ),
+        .trait(
+            name: "Apple",
+            description: "Build apps as programs on Apple's SwiftUI, for macOS and iOS. Use it alone: --traits Apple."
         ),
         .default(enabledTraits: ["Guest"]),
     ],
@@ -84,17 +93,40 @@ let package = Package(
             name: "Calculator",
             dependencies: ["AppUI", "CoreAppsUI", "CalculatorCore"]
         ),
-        // The calculator as a program. Named apart from the app's library:
+        // The calculator as a program, on Cacao or on Apple's SwiftUI. Named
+        // apart from the app's library:
         // file systems that ignore case would give the two one directory.
         .executableTarget(
             name: "CalculatorNative",
             dependencies: [
-                .target(name: "Calculator", condition: .when(traits: ["Native"])),
+                .target(name: "Calculator", condition: .when(traits: ["Native", "Apple"])),
             ]
         ),
         .testTarget(
             name: "CalculatorCoreTests",
             dependencies: ["CalculatorCore"]
+        ),
+
+        // MARK: - Files
+
+        // What the file manager knows of the file system. It uses
+        // Foundation: the file manager is a program, never a guest.
+        .target(
+            name: "FilesCore"
+        ),
+        .target(
+            name: "Files",
+            dependencies: ["AppUI", "CoreAppsUI", "FilesCore"]
+        ),
+        .executableTarget(
+            name: "FilesNative",
+            dependencies: [
+                .target(name: "Files", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "FilesCoreTests",
+            dependencies: ["FilesCore"]
         ),
     ]
 )

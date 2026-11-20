@@ -11,7 +11,7 @@ extension View {
     /// styles. A guest's host draws buttons its own way.
     @ViewBuilder
     public func plainButton() -> some View {
-        #if Native
+        #if Native || Apple
         self.buttonStyle(.plain)
         #else
         self

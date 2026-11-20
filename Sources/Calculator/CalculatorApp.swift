@@ -12,7 +12,8 @@ public struct CalculatorApp: App {
     public init() { }
 
     public var body: some Scene {
-        #if Native
+        #if Native || (Apple && os(macOS))
+        // On a desktop the window opens at a phone's size.
         WindowGroup("Calculator") {
             CalculatorView()
         }
@@ -25,7 +26,7 @@ public struct CalculatorApp: App {
     }
 }
 
-#if !Native
+#if !Native && !Apple
 
 /// A guest's entry point: the host calls it once after loading the app.
 @_expose(wasm, "rt_main")
