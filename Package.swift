@@ -33,12 +33,14 @@ let package = Package(
         .executable(name: "calculator", targets: ["CalculatorNative"]),
         .executable(name: "files", targets: ["FilesNative"]),
         .executable(name: "images", targets: ["ImagesNative"]),
+        .executable(name: "music", targets: ["MusicNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
+        .library(name: "MusicCore", targets: ["MusicCore"]),
     ],
     traits: [
         .trait(
@@ -63,6 +65,12 @@ let package = Package(
         .package(
             url: "https://github.com/PureSwift/Cacao.git",
             branch: "develop"
+        ),
+        // SDL's audio, for the music player on Cacao. The same package and
+        // branch Cacao opens its windows with.
+        .package(
+            url: "https://github.com/PureSwift/SDL.git",
+            branch: "master"
         ),
     ],
     targets: [
@@ -153,6 +161,34 @@ let package = Package(
         .testTarget(
             name: "ImagesCoreTests",
             dependencies: ["ImagesCore"]
+        ),
+
+        // MARK: - Music
+
+        // What the music player works out: tags, the queue, the library.
+        // No UI and no Foundation, for the day it's a guest.
+        .target(
+            name: "MusicCore"
+        ),
+        // The player's views and its sound. It finds music on the file
+        // system and plays it through SDL or AVFoundation, and so is a
+        // program for now.
+        .target(
+            name: "Music",
+            dependencies: [
+                "AppUI", "CoreAppsUI", "MusicCore", "FilesCore",
+                .product(name: "SDL3Swift", package: "SDL", condition: .when(traits: ["Native"])),
+            ]
+        ),
+        .executableTarget(
+            name: "MusicNative",
+            dependencies: [
+                .target(name: "Music", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "MusicCoreTests",
+            dependencies: ["MusicCore"]
         ),
     ]
 )
