@@ -6,7 +6,7 @@ width first.
 The plan for the apps, and what exists so far, is in
 [Documentation/Plan.md](Documentation/Plan.md).
 
-## Two flavors
+## Three flavors
 
 Most of the apps are [AppRuntime](https://github.com/PureSwift/AppRuntime)
 guests: Embedded Swift in a sandboxed bundle, drawing through AppRuntime's
@@ -14,16 +14,17 @@ SwiftUI frontend. Two can't live in that sandbox (the file manager and the
 software store) and are programs on
 [Cacao](https://github.com/PureSwift/Cacao), SwiftUI in Swift.
 
-Every app is written once and builds either way. A package trait picks the
-flavor:
+Every app is written once and builds either way, and a third way too: on
+Apple's own SwiftUI, for macOS and iOS. A package trait picks the flavor:
 
 | Trait | Builds | For |
 | --- | --- | --- |
 | `Guest` (default) | Apps as AppRuntime guests | The bundles a host runs; `swift build` and `swift test` on the machine you're at, which checks an app keeps to what a guest can use |
 | `Native` | Apps as programs on Cacao | The native apps, and running any app on a desktop while working on it |
+| `Apple` | Apps as programs on Apple's SwiftUI | Running the apps on macOS and iOS, and comparing them with the real thing |
 
 Apps import `AppUI`, which re-exports the flavor's SwiftUI, and keep to the
-part of SwiftUI both flavors have. Where one has more, such as button
+part of SwiftUI every flavor has. Where one has more, such as button
 styles, `CoreAppsUI` wraps the difference.
 
 ## Layout
@@ -34,7 +35,8 @@ styles, `CoreAppsUI` wraps the difference.
 | `Sources/CoreAppsUI` | Components and sizes the apps share |
 | `Sources/<App>Core` | What an app does, without UI or Foundation, with its tests |
 | `Sources/<App>` | An app's views and its `App`; the guest's entry point |
-| `Sources/<App>Native` | The app as a program on Cacao |
+| `Sources/<App>Native` | The app as a program, on Cacao or Apple's SwiftUI |
+| `Scripts` | Building an app for the iOS Simulator |
 | `Manifests/<App>` | The app's AppRuntime manifest and its localized strings |
 
 ## Apps
@@ -62,6 +64,28 @@ Linux.
 swift run --traits Native calculator
 swift run --traits Native files [folder]
 ```
+
+On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
+an app in `.build/ios-simulator`, to install with `xcrun simctl install`):
+
+```sh
+swift run --traits Apple calculator
+Scripts/ios-simulator-app.sh calculator Calculator
+Scripts/ios-simulator-app.sh files Files
+```
+
+The guest flavor and the apps' logic also build for Linux linked statically
+against musl, with Swift's
+[static Linux SDK](https://www.swift.org/documentation/articles/static-linux-getting-started.html)
+installed. Cacao's flavor doesn't, as the SDK has no SDL, Cairo or
+FontConfig.
+
+```sh
+swift build --swift-sdk aarch64-swift-linux-musl
+```
+
+CI builds all of these: macOS and the iOS Simulator, Linux on x86_64 (where
+it also runs both programs offscreen), and arm64 with musl.
 
 A guest's bundle is built from an AppRuntime checkout, with its wasm Swift
 SDK installed:
