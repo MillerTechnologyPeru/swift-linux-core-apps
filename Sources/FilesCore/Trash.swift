@@ -129,6 +129,12 @@ public struct Trash: Hashable, Sendable {
         return item.originalURL
     }
 
+    /// Deletes a trashed item, for good.
+    public func delete(_ item: Item) throws {
+        try FileManager.default.removeItem(at: item.url)
+        try? FileManager.default.removeItem(at: recordURL(of: item))
+    }
+
     /// Deletes everything in the trash, for good.
     public func empty() throws {
         let manager = FileManager.default
