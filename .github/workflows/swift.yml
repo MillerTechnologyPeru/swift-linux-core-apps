@@ -1,0 +1,32 @@
+name: Swift
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      # The runners' stable Xcode has an older Swift: Xcode provides the
+      # SDK, and the toolchain comes from swift.org.
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: SwiftyLab/setup-swift@latest
+        with:
+          swift-version: "6.4.2"
+      - name: Swift version
+        run: swift --version
+      - name: Install dependencies
+        # What Cacao draws and opens windows with, for the native flavor.
+        run: brew install sdl3 cairo fontconfig
+      - name: Build (guest flavor)
+        run: swift build
+      - name: Test
+        run: swift test
+      - name: Build (native flavor)
+        run: swift build --traits Native
