@@ -39,6 +39,7 @@ jobs:
         run: |
           Scripts/ios-simulator-app.sh calculator Calculator
           Scripts/ios-simulator-app.sh files Files
+          Scripts/ios-simulator-app.sh images Images
 
   # Linux on x86_64, with glibc: every flavor Linux has, and both programs
   # run far enough to draw a frame.
@@ -95,6 +96,8 @@ jobs:
         run: |
           CACAO_SCREENSHOT=calculator.png .build/debug/calculator
           CACAO_SCREENSHOT=files.png .build/debug/files "$PWD"
+          # The frame the files program drew is an image to look at.
+          CACAO_SCREENSHOT=images.png .build/debug/images files.png
 
   # Linux on arm64, linked statically against musl with Swift's static SDK:
   # the guest flavor and the apps' logic. Cacao's flavor isn't built this

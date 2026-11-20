@@ -45,6 +45,7 @@ styles, `CoreAppsUI` wraps the difference.
 | --- | --- | --- |
 | Calculator | Guest | Works as a native program; builds as a guest for the machine at hand; no bundle has been built or run in a host |
 | Files | Native | Browses, searches, sorts as a list or grid; copies, moves, renames (several at once), links, compresses, trashes and restores, with undo; bookmarks, stars, volumes, properties and permissions. How it stands beside GNOME Files, and what's missing, is in [Documentation/Files.md](Documentation/Files.md) |
+| Images | Native for now | Shows a folder's images as a grid and one at a time: pinch or double-tap to zoom, drag to pan, swipe or step to the next, rotate, properties, move to trash. On Cacao only PNG is drawn, the other formats being named but not decoded; on Apple's SwiftUI the system decodes them. It is meant to be a guest, and isn't yet because a guest can't show an image from a file or take a pinch |
 
 The others in the plan aren't started.
 
@@ -63,6 +64,7 @@ Linux.
 ```sh
 swift run --traits Native calculator
 swift run --traits Native files [folder]
+swift run --traits Native images [image or folder]
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -72,6 +74,7 @@ an app in `.build/ios-simulator`, to install with `xcrun simctl install`):
 swift run --traits Apple calculator
 Scripts/ios-simulator-app.sh calculator Calculator
 Scripts/ios-simulator-app.sh files Files
+Scripts/ios-simulator-app.sh images Images
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically
