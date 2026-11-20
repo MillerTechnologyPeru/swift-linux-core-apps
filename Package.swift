@@ -28,10 +28,12 @@ let package = Package(
         .library(name: "Calculator", type: .static, targets: ["Calculator"]),
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
+        .executable(name: "files", targets: ["FilesNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
+        .library(name: "FilesCore", targets: ["FilesCore"]),
     ],
     traits: [
         .trait(
@@ -95,6 +97,28 @@ let package = Package(
         .testTarget(
             name: "CalculatorCoreTests",
             dependencies: ["CalculatorCore"]
+        ),
+
+        // MARK: - Files
+
+        // What the file manager knows of the file system. It uses
+        // Foundation: the file manager is a native app.
+        .target(
+            name: "FilesCore"
+        ),
+        .target(
+            name: "Files",
+            dependencies: ["AppUI", "CoreAppsUI", "FilesCore"]
+        ),
+        .executableTarget(
+            name: "FilesNative",
+            dependencies: [
+                .target(name: "Files", condition: .when(traits: ["Native"])),
+            ]
+        ),
+        .testTarget(
+            name: "FilesCoreTests",
+            dependencies: ["FilesCore"]
         ),
     ]
 )
