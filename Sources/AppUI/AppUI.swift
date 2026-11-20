@@ -9,9 +9,12 @@
 
 #if Native
 
-// A program on Cacao: SwiftUI in Swift, with its SDL host.
+// A program on Cacao: SwiftUI in Swift, with its SDL host. Foundation
+// comes with it, as with SwiftUI: off Apple's platforms that is where
+// `CGFloat` and the other geometry types are.
 @_exported import Cacao
 @_exported import CacaoSDL
+@_exported import Foundation
 
 #else
 
