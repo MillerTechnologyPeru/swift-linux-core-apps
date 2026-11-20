@@ -42,6 +42,7 @@ styles, `CoreAppsUI` wraps the difference.
 | App | Flavor | State |
 | --- | --- | --- |
 | Calculator | Guest | Works as a native program; builds as a guest for the machine at hand; no bundle has been built or run in a host |
+| Files | Native | Browses folders from a list of locations, sorts, shows hidden files and a file's details; doesn't open, move or delete anything yet |
 
 The others in the plan aren't started.
 
@@ -59,6 +60,7 @@ Linux.
 
 ```sh
 swift run --traits Native calculator
+swift run --traits Native files [folder]
 ```
 
 A guest's bundle is built from an AppRuntime checkout, with its wasm Swift
