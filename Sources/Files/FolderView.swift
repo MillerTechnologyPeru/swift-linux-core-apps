@@ -3,7 +3,7 @@
 //  CoreApps
 //
 
-#if Native
+#if Native || Apple
 
 import AppUI
 import CoreAppsUI
