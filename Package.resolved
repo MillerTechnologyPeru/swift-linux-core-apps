@@ -1,0 +1,177 @@
+{
+  "originHash" : "f26b4250165755ca0b34d96b0ba8aafb21930bd5672d2b21b74506a67bca0f69",
+  "pins" : [
+    {
+      "identity" : "android",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Android.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "4c941bc19c5907e12c8aeadd61dc7bdf1eaf7671"
+      }
+    },
+    {
+      "identity" : "cacao",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Cacao.git",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "4cb81786be7076c01497232dbb49c4a97148f57e"
+      }
+    },
+    {
+      "identity" : "cairo",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Cairo.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "af9fa9d203b0598d9a4697a05ba868bf87424d32"
+      }
+    },
+    {
+      "identity" : "fontconfig",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/FontConfig.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "02b7b628cfff1406731dde5e912e020f0f6f00c1"
+      }
+    },
+    {
+      "identity" : "javalang",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/JavaLang.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "1b7320afd8d40a669422ee61d5335ae6d647dce5"
+      }
+    },
+    {
+      "identity" : "javascriptkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftwasm/JavaScriptKit.git",
+      "state" : {
+        "revision" : "3f1087cef530810433807cee73a132546c62dc98",
+        "version" : "0.63.0"
+      }
+    },
+    {
+      "identity" : "kotlin",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Kotlin.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "88a9bb94d156ef95d177bc6a65580dfacdda4b13"
+      }
+    },
+    {
+      "identity" : "sdl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/SDL.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "58752513dc459f5be5dc33a3b0e1b0423c67ba59"
+      }
+    },
+    {
+      "identity" : "silica",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Silica.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e67e2709a5004f99a14c7d5af78c5390c020d3c6"
+      }
+    },
+    {
+      "identity" : "swift-android-native",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-android-sdk/swift-android-native.git",
+      "state" : {
+        "revision" : "5f71c1584b3cbe3842d335ebb4d7b545205d9945",
+        "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "6a52f3251125d74daf04fcbd5e6f08a75d074382",
+        "version" : "1.8.2"
+      }
+    },
+    {
+      "identity" : "swift-binding-generator-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-binding-generator-core",
+      "state" : {
+        "branch" : "main",
+        "revision" : "98dcc1fada85e99d309fce27530ce7449998c008"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections",
+      "state" : {
+        "revision" : "a0cb0954ecb21e4e31b0070e6ed5674e8556685a",
+        "version" : "1.6.0"
+      }
+    },
+    {
+      "identity" : "swift-java",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-java.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e887cb5ff6fe6066608c3f62e0451a44fdbf0123"
+      }
+    },
+    {
+      "identity" : "swift-java-jni-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-java-jni-core",
+      "state" : {
+        "branch" : "main",
+        "revision" : "b440a0be98381550cf189c903782e817619ffa05"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log",
+      "state" : {
+        "revision" : "c7413d967b97aae67c46452bf7645bdb7b200e8e",
+        "version" : "1.17.2"
+      }
+    },
+    {
+      "identity" : "swift-subprocess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-subprocess.git",
+      "state" : {
+        "revision" : "13d087685b95d64d6aac9b94500d347bbe84c39b",
+        "version" : "0.4.0"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "79e4b74a295b6eb74a8b585e3a39d29e70c1dbd1",
+        "version" : "603.0.2"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system",
+      "state" : {
+        "revision" : "640e5755b5826f4437eaeedd366fd776737db62c",
+        "version" : "1.9.0"
+      }
+    }
+  ],
+  "version" : 3
+}
