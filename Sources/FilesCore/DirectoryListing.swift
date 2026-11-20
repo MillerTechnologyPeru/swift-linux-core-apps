@@ -13,6 +13,29 @@ public enum FileSort: String, Hashable, Sendable, CaseIterable {
     case modified
     /// Largest first.
     case size
+    /// By kind, then by name extension, then by name.
+    case type
+}
+
+/// How a folder is listed.
+public struct ListingOptions: Hashable, Sendable {
+
+    public var sort: FileSort
+
+    /// The order turned around: Z to A, oldest first, smallest first.
+    public var isReversed: Bool
+
+    /// Whether folders come before files, whatever the order.
+    public var foldersFirst: Bool
+
+    public var showsHidden: Bool
+
+    public init(sort: FileSort = .name, isReversed: Bool = false, foldersFirst: Bool = true, showsHidden: Bool = false) {
+        self.sort = sort
+        self.isReversed = isReversed
+        self.foldersFirst = foldersFirst
+        self.showsHidden = showsHidden
+    }
 }
 
 /// What a folder holds.
@@ -49,23 +72,46 @@ public enum DirectoryListing {
         return sorted(items, by: sort)
     }
 
-    /// Items in an order, folders first.
-    public static func sorted(_ items: [FileItem], by sort: FileSort) -> [FileItem] {
+    /// The items directly inside a folder, listed as the options say.
+    public static func load(_ folder: URL, options: ListingOptions) throws -> [FileItem] {
+        let items = try load(folder, showsHidden: options.showsHidden, sort: .name)
+        return sorted(items, by: options.sort, isReversed: options.isReversed, foldersFirst: options.foldersFirst)
+    }
+
+    /// Items in an order.
+    ///
+    /// - Parameters:
+    ///   - isReversed: Turns the order around; folders still come first.
+    ///   - foldersFirst: Whether folders come before files.
+    public static func sorted(_ items: [FileItem], by sort: FileSort, isReversed: Bool = false, foldersFirst: Bool = true) -> [FileItem] {
         items.sorted { first, second in
-            if first.isFolder != second.isFolder {
+            if foldersFirst, first.isFolder != second.isFolder {
                 return first.isFolder
             }
-            switch sort {
-            case .name:
-                break
-            case .modified:
-                let a = first.modified ?? .distantPast, b = second.modified ?? .distantPast
-                if a != b { return a > b }
-            case .size:
-                let a = first.size ?? 0, b = second.size ?? 0
-                if a != b { return a > b }
-            }
-            return first.name.localizedStandardCompare(second.name) == .orderedAscending
+            let order = isReversed ? compare(second, first, by: sort) : compare(first, second, by: sort)
+            return order == .orderedAscending
         }
+    }
+
+    /// Which of two items comes first in an order.
+    private static func compare(_ first: FileItem, _ second: FileItem, by sort: FileSort) -> ComparisonResult {
+        func order<Value: Comparable>(_ a: Value, _ b: Value) -> ComparisonResult {
+            a < b ? .orderedAscending : (a > b ? .orderedDescending : .orderedSame)
+        }
+        var result = ComparisonResult.orderedSame
+        switch sort {
+        case .name:
+            break
+        case .modified:
+            result = order(second.modified ?? .distantPast, first.modified ?? .distantPast)
+        case .size:
+            result = order(second.size ?? 0, first.size ?? 0)
+        case .type:
+            result = order(first.kind.rawValue, second.kind.rawValue)
+            if result == .orderedSame {
+                result = order(first.url.pathExtension.lowercased(), second.url.pathExtension.lowercased())
+            }
+        }
+        return result == .orderedSame ? first.name.localizedStandardCompare(second.name) : result
     }
 }

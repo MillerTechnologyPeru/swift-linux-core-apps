@@ -44,7 +44,7 @@ styles, `CoreAppsUI` wraps the difference.
 | App | Flavor | State |
 | --- | --- | --- |
 | Calculator | Guest | Works as a native program; builds as a guest for the machine at hand; no bundle has been built or run in a host |
-| Files | Native | Browses folders from a list of locations, sorts, shows hidden files and a file's details; doesn't open, move or delete anything yet |
+| Files | Native | Browses, searches, sorts as a list or grid; copies, moves, renames (several at once), links, compresses, trashes and restores, with undo; bookmarks, stars, volumes, properties and permissions. How it stands beside GNOME Files, and what's missing, is in [Documentation/Files.md](Documentation/Files.md) |
 
 The others in the plan aren't started.
 
