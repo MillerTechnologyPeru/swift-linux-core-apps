@@ -23,7 +23,7 @@ public struct Location: Identifiable, Hashable, Sendable {
     }
 
     /// The user's folders that exist, then the whole file system.
-    public static func standard(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> [Location] {
+    public static func standard(home: URL = URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)) -> [Location] {
         var locations = [Location(name: "Home", symbolName: "house", url: home)]
         let folders: [(String, String)] = [
             ("Documents", "doc"),
