@@ -46,6 +46,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Calculator | Guest | Works as a native program; builds as a guest for the machine at hand; no bundle has been built or run in a host |
 | Files | Native | Browses, searches, sorts as a list or grid; copies, moves, renames (several at once), links, compresses, trashes and restores, with undo; bookmarks, stars, volumes, properties and permissions. How it stands beside GNOME Files, and what's missing, is in [Documentation/Files.md](Documentation/Files.md) |
 | Images | Native for now | Shows a folder's images as a grid and one at a time: pinch or double-tap to zoom, drag to pan, swipe or step to the next, rotate, properties, move to trash. On Cacao only PNG is drawn, the other formats being named but not decoded; on Apple's SwiftUI the system decodes them. It is meant to be a guest, and isn't yet because a guest can't show an image from a file or take a pinch |
+| Music | Native for now | Finds the music under the Music folder and lists it by song, album and artist, from tags it reads itself (ID3, Vorbis comments, MPEG-4, WAV); plays a queue with shuffle and repeat, a scrubber and what's up next. On Cacao only WAV plays, through SDL, the compressed formats waiting on a media stack; on Apple's SwiftUI the system plays them. It is meant to be a guest, and isn't yet because AppRuntime has no player on Linux |
 
 The others in the plan aren't started.
 
@@ -65,6 +66,7 @@ Linux.
 swift run --traits Native calculator
 swift run --traits Native files [folder]
 swift run --traits Native images [image or folder]
+swift run --traits Native music [folder]
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -75,6 +77,7 @@ swift run --traits Apple calculator
 Scripts/ios-simulator-app.sh calculator Calculator
 Scripts/ios-simulator-app.sh files Files
 Scripts/ios-simulator-app.sh images Images
+Scripts/ios-simulator-app.sh music Music
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically
