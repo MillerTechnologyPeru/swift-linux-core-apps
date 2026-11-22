@@ -51,6 +51,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Clocks | Native for now | A world clock for places picked from the time zones, alarms that repeat on chosen days with a label and snooze, a stopwatch with laps (fastest and slowest marked) and a timer with presets that can be paused and given another minute. Alarms and timers ring with a chime, through SDL on Cacao and AVFoundation on Apple's SwiftUI, and the places and alarms are kept in `~/.config/clocks`. Alarms ring only while Clocks is open, as nothing wakes it. It is meant to be a guest, and isn't yet because a guest can't play a sound |
 | Weather | Native for now | The places you search for, each with its weather now, the next 24 hours (with sunrise and sunset), 10 days on a bar of the week's temperatures, and feels-like, humidity, wind, UV, sun, rain and pressure. In Celsius or Fahrenheit, from [Open-Meteo](https://open-meteo.com), which needs no key; the last forecasts are kept for when it's offline. No current location, there being none to ask on Linux, and no radar, maps or alerts. It is meant to be a guest, and isn't yet because a guest has no HTTP |
 | Contacts | Native for now | People and companies by letter, sorted by first or last name, with favorites first and a search that ignores case and accents and finds numbers by their digits. Each card has phones, emails, links, addresses, a birthday and notes, with buttons to call, message and email. The cards are one vCard file in `~/.local/share/contacts`; vCards from Android (2.1), Apple's Contacts and others import and export, keeping what the app doesn't show, such as photos. No photos shown, groups, linked cards or sync. It is meant to be a guest, and isn't yet because a guest has no file picker |
+| Calendar | Native for now | A month at a time with a dot for each calendar with events that day, and the day picked listed below it; swipe or step between months. Events can be all-day or timed, repeat (daily, weekdays, weekly, fortnightly, monthly, yearly, until a day) with single days taken out, go on calendars that can be hidden, and alert. `.ics` files from other calendars import, in their time zones, with their repeats, exceptions, moved occurrences and alerts, and export. Alerts come only while Calendar is open, as nothing wakes it; no week or day view, invitations or sync. It is meant to be a guest, and isn't yet because a guest has no time zones, file picker or way to alert while closed |
 
 The others in the plan aren't started.
 
@@ -75,6 +76,7 @@ swift run --traits Native text-editor [file or folder]
 swift run --traits Native clocks
 swift run --traits Native weather [a kept place]
 swift run --traits Native contacts [vCard file to import]
+swift run --traits Native calendar [.ics file to import]
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -90,6 +92,7 @@ Scripts/ios-simulator-app.sh text-editor "Text Editor"
 Scripts/ios-simulator-app.sh clocks Clocks
 Scripts/ios-simulator-app.sh weather Weather
 Scripts/ios-simulator-app.sh contacts Contacts
+Scripts/ios-simulator-app.sh calendar Calendar
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically
