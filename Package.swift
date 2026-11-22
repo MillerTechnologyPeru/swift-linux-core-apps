@@ -34,6 +34,7 @@ let package = Package(
         .executable(name: "files", targets: ["FilesNative"]),
         .executable(name: "images", targets: ["ImagesNative"]),
         .executable(name: "music", targets: ["MusicNative"]),
+        .executable(name: "text-editor", targets: ["EditorNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
@@ -41,6 +42,7 @@ let package = Package(
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
         .library(name: "MusicCore", targets: ["MusicCore"]),
+        .library(name: "TextCore", targets: ["TextCore"]),
     ],
     traits: [
         .trait(
@@ -189,6 +191,31 @@ let package = Package(
         .testTarget(
             name: "MusicCoreTests",
             dependencies: ["MusicCore"]
+        ),
+
+        // MARK: - Text Editor
+
+        // What the text editor works out: encodings, searching, undoing.
+        // No UI and no Foundation, for the day it's a guest.
+        .target(
+            name: "TextCore"
+        ),
+        // The editor's views. It finds and writes files itself, and so is
+        // a program for now.
+        // Named apart from SwiftUI's `TextEditor`, which it's built on.
+        .target(
+            name: "Editor",
+            dependencies: ["AppUI", "CoreAppsUI", "TextCore", "FilesCore"]
+        ),
+        .executableTarget(
+            name: "EditorNative",
+            dependencies: [
+                .target(name: "Editor", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "TextCoreTests",
+            dependencies: ["TextCore"]
         ),
     ]
 )
