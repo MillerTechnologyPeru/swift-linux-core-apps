@@ -36,6 +36,7 @@ let package = Package(
         .executable(name: "music", targets: ["MusicNative"]),
         .executable(name: "clocks", targets: ["ClocksNative"]),
         .executable(name: "text-editor", targets: ["EditorNative"]),
+        .executable(name: "weather", targets: ["WeatherNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
@@ -45,6 +46,7 @@ let package = Package(
         .library(name: "MusicCore", targets: ["MusicCore"]),
         .library(name: "ClocksCore", targets: ["ClocksCore"]),
         .library(name: "TextCore", targets: ["TextCore"]),
+        .library(name: "WeatherCore", targets: ["WeatherCore"]),
     ],
     traits: [
         .trait(
@@ -246,6 +248,31 @@ let package = Package(
         .testTarget(
             name: "ClocksCoreTests",
             dependencies: ["ClocksCore"]
+        ),
+
+        // MARK: - Weather
+
+        // What the weather works out: Open-Meteo's forecast and places,
+        // conditions, times on a place's clock, units. No UI and no
+        // Foundation, for the day it's a guest.
+        .target(
+            name: "WeatherCore"
+        ),
+        // The weather's views. It fetches forecasts over HTTP, which a
+        // guest can't yet, and so is a program for now.
+        .target(
+            name: "Weather",
+            dependencies: ["AppUI", "CoreAppsUI", "WeatherCore"]
+        ),
+        .executableTarget(
+            name: "WeatherNative",
+            dependencies: [
+                .target(name: "Weather", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "WeatherCoreTests",
+            dependencies: ["WeatherCore"]
         ),
     ]
 )
