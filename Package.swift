@@ -39,6 +39,7 @@ let package = Package(
         .executable(name: "weather", targets: ["WeatherNative"]),
         .executable(name: "contacts", targets: ["ContactsNative"]),
         .executable(name: "calendar", targets: ["CalendarNative"]),
+        .executable(name: "maps", targets: ["MapsNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
@@ -51,6 +52,7 @@ let package = Package(
         .library(name: "WeatherCore", targets: ["WeatherCore"]),
         .library(name: "ContactsCore", targets: ["ContactsCore"]),
         .library(name: "CalendarCore", targets: ["CalendarCore"]),
+        .library(name: "MapsCore", targets: ["MapsCore"]),
     ],
     traits: [
         .trait(
@@ -329,6 +331,32 @@ let package = Package(
         .testTarget(
             name: "CalendarCoreTests",
             dependencies: ["CalendarCore"]
+        ),
+
+        // MARK: - Maps
+
+        // What the maps work out: the projection, which tiles cover the
+        // screen, panning and zooming, and reading searches and routes.
+        // No UI and no Foundation, for the day it's a guest.
+        .target(
+            name: "MapsCore"
+        ),
+        // The maps' views. They fetch tiles, searches and routes over
+        // HTTP, which a guest can't yet, and so are a program for now.
+        // Named apart from Apple's MapKit and Maps.
+        .target(
+            name: "Atlas",
+            dependencies: ["AppUI", "CoreAppsUI", "MapsCore"]
+        ),
+        .executableTarget(
+            name: "MapsNative",
+            dependencies: [
+                .target(name: "Atlas", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "MapsCoreTests",
+            dependencies: ["MapsCore"]
         ),
     ]
 )
