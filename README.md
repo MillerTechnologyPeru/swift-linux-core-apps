@@ -49,6 +49,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Music | Native for now | Finds the music under the Music folder and lists it by song, album and artist, from tags it reads itself (ID3, Vorbis comments, MPEG-4, WAV); plays a queue with shuffle and repeat, a scrubber and what's up next. On Cacao only WAV plays, through SDL, the compressed formats waiting on a media stack; on Apple's SwiftUI the system plays them. It is meant to be a guest, and isn't yet because AppRuntime has no player on Linux |
 | Text Editor | Native for now | Lists a folder's text files, makes new ones and edits them: undo and redo, find and replace (whole words, matching case), wrapping, text size, word and line counts. Keeps a file's encoding (UTF-8, UTF-16, Latin-1) and line endings. Leaving a document saves it. No in-text highlighting of matches, go to line or line numbers, which need a text view with a selection; files over 5 MB aren't opened. It is meant to be a guest, and isn't yet because a guest has no text editor or file picker |
 | Clocks | Native for now | A world clock for places picked from the time zones, alarms that repeat on chosen days with a label and snooze, a stopwatch with laps (fastest and slowest marked) and a timer with presets that can be paused and given another minute. Alarms and timers ring with a chime, through SDL on Cacao and AVFoundation on Apple's SwiftUI, and the places and alarms are kept in `~/.config/clocks`. Alarms ring only while Clocks is open, as nothing wakes it. It is meant to be a guest, and isn't yet because a guest can't play a sound |
+| Weather | Native for now | The places you search for, each with its weather now, the next 24 hours (with sunrise and sunset), 10 days on a bar of the week's temperatures, and feels-like, humidity, wind, UV, sun, rain and pressure. In Celsius or Fahrenheit, from [Open-Meteo](https://open-meteo.com), which needs no key; the last forecasts are kept for when it's offline. No current location, there being none to ask on Linux, and no radar, maps or alerts. It is meant to be a guest, and isn't yet because a guest has no HTTP |
 
 The others in the plan aren't started.
 
@@ -71,6 +72,7 @@ swift run --traits Native images [image or folder]
 swift run --traits Native music [folder]
 swift run --traits Native text-editor [file or folder]
 swift run --traits Native clocks
+swift run --traits Native weather [a kept place]
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -84,6 +86,7 @@ Scripts/ios-simulator-app.sh images Images
 Scripts/ios-simulator-app.sh music Music
 Scripts/ios-simulator-app.sh text-editor "Text Editor"
 Scripts/ios-simulator-app.sh clocks Clocks
+Scripts/ios-simulator-app.sh weather Weather
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically

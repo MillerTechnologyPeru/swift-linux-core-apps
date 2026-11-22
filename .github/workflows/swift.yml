@@ -43,6 +43,7 @@ jobs:
           Scripts/ios-simulator-app.sh music Music
           Scripts/ios-simulator-app.sh text-editor "Text Editor"
           Scripts/ios-simulator-app.sh clocks Clocks
+          Scripts/ios-simulator-app.sh weather Weather
 
   # Linux on x86_64, with glibc: every flavor Linux has, and both programs
   # run far enough to draw a frame.
@@ -104,6 +105,7 @@ jobs:
           CACAO_SCREENSHOT=music.png .build/debug/music "$PWD"
           CACAO_SCREENSHOT=editor.png .build/debug/text-editor README.md
           XDG_CONFIG_HOME="$RUNNER_TEMP/config" CACAO_SCREENSHOT=clocks.png .build/debug/clocks
+          XDG_CONFIG_HOME="$RUNNER_TEMP/config" XDG_CACHE_HOME="$RUNNER_TEMP/cache" CACAO_SCREENSHOT=weather.png .build/debug/weather
 
   # Linux on arm64, linked statically against musl with Swift's static SDK:
   # the guest flavor and the apps' logic. Cacao's flavor isn't built this
