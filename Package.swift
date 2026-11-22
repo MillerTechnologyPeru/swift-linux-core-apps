@@ -34,6 +34,7 @@ let package = Package(
         .executable(name: "files", targets: ["FilesNative"]),
         .executable(name: "images", targets: ["ImagesNative"]),
         .executable(name: "music", targets: ["MusicNative"]),
+        .executable(name: "clocks", targets: ["ClocksNative"]),
         .executable(name: "text-editor", targets: ["EditorNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
@@ -42,6 +43,7 @@ let package = Package(
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
         .library(name: "MusicCore", targets: ["MusicCore"]),
+        .library(name: "ClocksCore", targets: ["ClocksCore"]),
         .library(name: "TextCore", targets: ["TextCore"]),
     ],
     traits: [
@@ -216,6 +218,34 @@ let package = Package(
         .testTarget(
             name: "TextCoreTests",
             dependencies: ["TextCore"]
+        ),
+
+        // MARK: - Clocks
+
+        // What the clocks work out: alarms, the stopwatch, the timer and
+        // the chime. No UI and no Foundation, for the day it's a guest.
+        .target(
+            name: "ClocksCore"
+        ),
+        // The clocks' views, and the chime played through SDL or
+        // AVFoundation. It rings only while it's open, there being no
+        // service yet to wake it, and so is a program for now.
+        .target(
+            name: "Clocks",
+            dependencies: [
+                "AppUI", "CoreAppsUI", "ClocksCore",
+                .product(name: "SDL3Swift", package: "SDL", condition: .when(traits: ["Native"])),
+            ]
+        ),
+        .executableTarget(
+            name: "ClocksNative",
+            dependencies: [
+                .target(name: "Clocks", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "ClocksCoreTests",
+            dependencies: ["ClocksCore"]
         ),
     ]
 )
