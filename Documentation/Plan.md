@@ -97,6 +97,8 @@ The AppRuntime render IR already has nodes for swipe actions, sheets, refresh, s
 
 A native Cacao app with a small core and one plugin per source of software.
 
+**What exists.** The `software` program lists, installs, opens, updates and removes Flatpak apps and AppRuntime bundles, and browses and searches Flathub's AppStream catalog. Its sources are the `flatpak` and `linux-app` programs, which it runs directly; the plugin protocol below and the OS-update plugin aren't written.
+
 | Plugin | Installs | Notes |
 | --- | --- | --- |
 | AppRuntime bundles | First-party and third-party `.app` bundles | Uses the existing `linux-app` packager and the bundle sandbox |
