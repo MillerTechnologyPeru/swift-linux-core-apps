@@ -50,6 +50,7 @@ jobs:
           Scripts/ios-simulator-app.sh videos Videos
           Scripts/ios-simulator-app.sh browser Browser
           Scripts/ios-simulator-app.sh software Software
+          Scripts/ios-simulator-app.sh camera Camera
 
   # Linux on x86_64, with glibc: every flavor Linux has, and both programs
   # run far enough to draw a frame.
@@ -120,6 +121,8 @@ jobs:
           XDG_DATA_HOME="$RUNNER_TEMP/data" CACAO_SCREENSHOT=browser.png .build/debug/browser
           # Explore without Flatpak, which the container doesn't have.
           CACAO_SCREENSHOT=software.png .build/debug/software
+          # Cacao has no camera yet, which the camera says.
+          CACAO_SCREENSHOT=camera.png .build/debug/camera
 
   # Linux on arm64, linked statically against musl with Swift's static SDK:
   # the guest flavor and the apps' logic. Cacao's flavor isn't built this
