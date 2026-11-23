@@ -1,5 +1,5 @@
 {
-  "originHash" : "e54fa0e344bcbeb531b42e619a8205e3532cb11eb37ec9c36570b1814864ea99",
+  "originHash" : "91a5a8043c7de81439e8fa9c1ee92a1528a911d3132e8e44744ef2a7a255520f",
   "pins" : [
     {
       "identity" : "android",
@@ -8,6 +8,24 @@
       "state" : {
         "branch" : "master",
         "revision" : "4c941bc19c5907e12c8aeadd61dc7bdf1eaf7671"
+      }
+    },
+    {
+      "identity" : "appruntime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/AppRuntime.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "38d1212ea8337912ed6c1dd90fe68451f19353dd"
+      }
+    },
+    {
+      "identity" : "bluetooth",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Bluetooth.git",
+      "state" : {
+        "revision" : "033e52c56ce97ae4232ebb0b91522dbe385582d3",
+        "version" : "8.2.1"
       }
     },
     {
@@ -26,6 +44,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "af9fa9d203b0598d9a4697a05ba868bf87424d32"
+      }
+    },
+    {
+      "identity" : "coremodel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/CoreModel.git",
+      "state" : {
+        "revision" : "456c3e1daa14f5fc719ca48f26ed75e0f1378ca4",
+        "version" : "2.11.1"
       }
     },
     {
@@ -170,6 +197,15 @@
       "state" : {
         "revision" : "640e5755b5826f4437eaeedd366fd776737db62c",
         "version" : "1.9.0"
+      }
+    },
+    {
+      "identity" : "webkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/WebKit.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "76c5e41d9e53378c7c6659c6a7f72fa73df1f5c6"
       }
     }
   ],
