@@ -30,6 +30,7 @@ let package = Package(
         // Guest products: what `guest.py` builds a bundle from.
         .library(name: "Calculator", type: .static, targets: ["Calculator"]),
         .library(name: "Videos", type: .static, targets: ["Videos"]),
+        .library(name: "Browser", type: .static, targets: ["Browser"]),
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
         .executable(name: "files", targets: ["FilesNative"]),
@@ -42,10 +43,12 @@ let package = Package(
         .executable(name: "calendar", targets: ["CalendarNative"]),
         .executable(name: "maps", targets: ["MapsNative"]),
         .executable(name: "videos", targets: ["VideosNative"]),
+        .executable(name: "browser", targets: ["BrowserNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "AppMedia", targets: ["AppMedia"]),
+        .library(name: "AppWeb", targets: ["AppWeb"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
@@ -57,6 +60,7 @@ let package = Package(
         .library(name: "CalendarCore", targets: ["CalendarCore"]),
         .library(name: "MapsCore", targets: ["MapsCore"]),
         .library(name: "VideosCore", targets: ["VideosCore"]),
+        .library(name: "BrowserCore", targets: ["BrowserCore"]),
     ],
     traits: [
         .trait(
@@ -88,6 +92,11 @@ let package = Package(
             url: "https://github.com/PureSwift/SDL.git",
             branch: "master"
         ),
+        // WPE WebKit's pages in Cacao, for the browser on Cacao.
+        .package(
+            url: "https://github.com/PureSwift/WebKit.git",
+            branch: "master"
+        ),
     ],
     targets: [
 
@@ -117,6 +126,17 @@ let package = Package(
                 "AppUI",
                 .product(name: "DynamicMedia", package: "AppRuntime", condition: .when(traits: ["Guest"])),
                 .product(name: "DynamicFiles", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+            ]
+        ),
+        // Web pages, as the flavor has them, in AppRuntime's shape: its
+        // `DynamicWebKit` for a guest, PureSwift/WebKit's WPE pages on
+        // Cacao, and WKWebView on Apple's SwiftUI.
+        .target(
+            name: "AppWeb",
+            dependencies: [
+                "AppUI",
+                .product(name: "DynamicWebKit", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+                .product(name: "CacaoWebKit", package: "WebKit", condition: .when(traits: ["Native"])),
             ]
         ),
 
@@ -403,6 +423,40 @@ let package = Package(
         .testTarget(
             name: "VideosCoreTests",
             dependencies: ["VideosCore"]
+        ),
+
+        // MARK: - Browser
+
+        // What the browser works out: what's typed into the address bar,
+        // the tabs, bookmarks and history, and keeping them. No UI and no
+        // Foundation, as it's a guest.
+        .target(
+            name: "BrowserCore"
+        ),
+        // The browser's views. A guest: AppRuntime's host loads and draws
+        // the pages, and keeps its defaults. As a program its pages are
+        // WPE WebKit's on Cacao, through PureSwift/WebKit, or WKWebView on
+        // Apple's SwiftUI, whose pages and views belong to the main actor,
+        // as the views here then do too.
+        .target(
+            name: "Browser",
+            dependencies: [
+                "AppUI", "CoreAppsUI", "AppWeb", "BrowserCore",
+                .product(name: "DynamicDefaults", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+            ],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self, .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .executableTarget(
+            name: "BrowserNative",
+            dependencies: [
+                .target(name: "Browser", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "BrowserCoreTests",
+            dependencies: ["BrowserCore"]
         ),
     ]
 )
