@@ -48,6 +48,7 @@ jobs:
           Scripts/ios-simulator-app.sh calendar Calendar
           Scripts/ios-simulator-app.sh maps Maps
           Scripts/ios-simulator-app.sh videos Videos
+          Scripts/ios-simulator-app.sh browser Browser
 
   # Linux on x86_64, with glibc: every flavor Linux has, and both programs
   # run far enough to draw a frame.
@@ -114,6 +115,8 @@ jobs:
           XDG_DATA_HOME="$RUNNER_TEMP/data" CACAO_SCREENSHOT=calendar.png .build/debug/calendar
           XDG_CONFIG_HOME="$RUNNER_TEMP/config" XDG_CACHE_HOME="$RUNNER_TEMP/cache" CACAO_SCREENSHOT=maps.png .build/debug/maps
           CACAO_SCREENSHOT=videos.png .build/debug/videos
+          # A new tab's start page: the container has no WPE WebKit.
+          XDG_DATA_HOME="$RUNNER_TEMP/data" CACAO_SCREENSHOT=browser.png .build/debug/browser
 
   # Linux on arm64, linked statically against musl with Swift's static SDK:
   # the guest flavor and the apps' logic. Cacao's flavor isn't built this
