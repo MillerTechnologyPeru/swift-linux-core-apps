@@ -131,7 +131,10 @@ public final class WebPage {
 
     public init() {
         let configuration = WKWebViewConfiguration()
+        #if os(iOS)
+        // Videos play in the page, as on a Mac, rather than full screen.
         configuration.allowsInlineMediaPlayback = true
+        #endif
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = navigationDelegate
