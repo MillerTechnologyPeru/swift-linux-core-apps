@@ -1,0 +1,8 @@
+/* The app's name. */
+"app.name" = "Camera";
+
+/* Why the app asks for the camera. */
+"perm.camera" = "Camera takes photos and videos with it.";
+
+/* Why the app asks for the microphone. */
+"perm.microphone" = "Camera records the sound of your videos.";
