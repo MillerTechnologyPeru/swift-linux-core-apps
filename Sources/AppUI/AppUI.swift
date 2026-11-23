@@ -24,7 +24,13 @@
 #else
 
 // An AppRuntime guest: the frontend that sends a host's renderer the views.
+// AppRuntime's guest.py names it `SwiftUI`, as guest code calls it; a host
+// build of this package can't, since Apple's SDK has a SwiftUI.
 @_exported import DynamicRuntime
+#if canImport(DynamicSwiftUI)
 @_exported import DynamicSwiftUI
+#else
+@_exported import SwiftUI
+#endif
 
 #endif

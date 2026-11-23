@@ -53,6 +53,11 @@ public struct KeyButton: View {
                 .cornerRadius(Metrics.keyCornerRadius)
         }
         .plainButton()
+        #if !Native && !Apple
+        // A guest's host draws its own buttons, which color their label
+        // with the tint: the key's own color, not the accent.
+        .tint(foreground)
+        #endif
         .accessibilityIdentifier(identifier)
     }
 
@@ -60,9 +65,19 @@ public struct KeyButton: View {
         switch prominence {
         case .standard: Color(white: 0.5, opacity: 0.18)
         case .secondary: Color(white: 0.5, opacity: 0.35)
-        case .primary: Color.accentColor
+        case .primary: Self.accent
         }
     }
+
+    /// The operators' fill. In a guest the button's tint is its label's
+    /// color, which the accent color inside it would take too; and the
+    /// Linux player knows no named color but black and white, so it's
+    /// the system's blue by its components.
+    #if !Native && !Apple
+    private static let accent = Color(red: 0, green: 0.478, blue: 1)
+    #else
+    private static let accent = Color.accentColor
+    #endif
 
     private var foreground: Color {
         prominence == .primary ? Color.white : Color.primary

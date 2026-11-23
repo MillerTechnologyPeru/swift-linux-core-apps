@@ -63,7 +63,9 @@ public struct CalculatorView: View {
     /// A row of four keys, each as wide as the others.
     private func row(_ keys: [KeySpec]) -> some View {
         HStack(spacing: Metrics.keySpacing) {
-            ForEach(0..<keys.count, id: \.self) { index in
+            // A row's keys never change, so the range is constant; and a
+            // guest, in Embedded Swift, has no key paths for `id: \.self`.
+            ForEach(0..<keys.count) { index in
                 let spec = keys[index]
                 KeyButton(spec.title, prominence: spec.prominence, identifier: spec.identifier) {
                     calculator.press(spec.key)
