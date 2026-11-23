@@ -288,7 +288,9 @@ extension UTType {
 
     /// Tells Cacao's file dialogs what iCalendar files are called.
     static func declareICalendar() {
-        #if Native
+        // Only Cacao's own UTType, on Linux, is told: on a Mac, Cacao's is
+        // Apple's, which knows the extension already.
+        #if Native && !canImport(UniformTypeIdentifiers)
         UTType.declareFilenameExtension("ics", for: .iCalendarFile)
         #endif
     }
