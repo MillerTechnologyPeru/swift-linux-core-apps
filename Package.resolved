@@ -1,5 +1,5 @@
 {
-  "originHash" : "f26b4250165755ca0b34d96b0ba8aafb21930bd5672d2b21b74506a67bca0f69",
+  "originHash" : "e54fa0e344bcbeb531b42e619a8205e3532cb11eb37ec9c36570b1814864ea99",
   "pins" : [
     {
       "identity" : "android",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/PureSwift/Cacao.git",
       "state" : {
         "branch" : "develop",
-        "revision" : "4cb81786be7076c01497232dbb49c4a97148f57e"
+        "revision" : "0b59f92d2432df688495b707ef4ddfa6d674f81f"
       }
     },
     {
@@ -70,7 +70,7 @@
       "location" : "https://github.com/PureSwift/SDL.git",
       "state" : {
         "branch" : "master",
-        "revision" : "58752513dc459f5be5dc33a3b0e1b0423c67ba59"
+        "revision" : "8b77f4f74969dc2ebb622b93c282ffe308ace832"
       }
     },
     {
@@ -79,7 +79,7 @@
       "location" : "https://github.com/PureSwift/Silica.git",
       "state" : {
         "branch" : "master",
-        "revision" : "e67e2709a5004f99a14c7d5af78c5390c020d3c6"
+        "revision" : "42821487273805bfa879e2fcbffec57f059622b9"
       }
     },
     {
