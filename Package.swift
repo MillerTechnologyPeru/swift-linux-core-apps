@@ -44,6 +44,7 @@ let package = Package(
         .executable(name: "maps", targets: ["MapsNative"]),
         .executable(name: "videos", targets: ["VideosNative"]),
         .executable(name: "browser", targets: ["BrowserNative"]),
+        .executable(name: "software", targets: ["SoftwareNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
@@ -61,6 +62,7 @@ let package = Package(
         .library(name: "MapsCore", targets: ["MapsCore"]),
         .library(name: "VideosCore", targets: ["VideosCore"]),
         .library(name: "BrowserCore", targets: ["BrowserCore"]),
+        .library(name: "SoftwareCore", targets: ["SoftwareCore"]),
     ],
     traits: [
         .trait(
@@ -457,6 +459,34 @@ let package = Package(
         .testTarget(
             name: "BrowserCoreTests",
             dependencies: ["BrowserCore"]
+        ),
+
+        // MARK: - Software
+
+        // What the software store reads: AppStream catalogs, what Flatpak
+        // prints, and AppRuntime bundles' Info.plist; and finding apps. It
+        // uses Foundation: the store is a program, never a guest.
+        .target(
+            name: "SoftwareCore"
+        ),
+        // The store's views, and running `flatpak` and `linux-app`. Its
+        // views and model belong to the main actor, as SwiftUI's do.
+        .target(
+            name: "Software",
+            dependencies: ["AppUI", "CoreAppsUI", "SoftwareCore"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self, .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .executableTarget(
+            name: "SoftwareNative",
+            dependencies: [
+                .target(name: "Software", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "SoftwareCoreTests",
+            dependencies: ["SoftwareCore"]
         ),
     ]
 )
