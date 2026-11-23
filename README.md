@@ -54,6 +54,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Calendar | Native for now | A month at a time with a dot for each calendar with events that day, and the day picked listed below it; swipe or step between months. Events can be all-day or timed, repeat (daily, weekdays, weekly, fortnightly, monthly, yearly, until a day) with single days taken out, go on calendars that can be hidden, and alert. `.ics` files from other calendars import, in their time zones, with their repeats, exceptions, moved occurrences and alerts, and export. Alerts come only while Calendar is open, as nothing wakes it; no week or day view, invitations or sync. It is meant to be a guest, and isn't yet because a guest has no time zones, file picker or way to alert while closed |
 | Maps | Native for now | OpenStreetMap's map, dragged, pinched and zoomed, with its tiles kept in `~/.cache/maps` to draw again offline. Search for places (near the map first) and save them; directions to a place by car, bike or on foot, drawn on the map with each step. Tiles, search and routes come from OpenStreetMap, Nominatim and FOSSGIS's OSRM, which need no key but ask for light use: `MAPS_TILE_URL` points the map at another tile server. No current location, there being none to ask on Linux, and no offline search, transit or turn-by-turn. It is meant to be a guest, and isn't yet because a guest has no HTTP |
 | Videos | Guest | Plays a video file, or one at an `http` or `https` address: play and pause, a scrubber with the time gone and the time left, skipping 10 seconds back and forward, volume and mute, and full screen with the controls over the picture at a tap. As a guest it plays through AppRuntime's `MediaPlayer`, which the host decodes and shows (on Linux, LinuxAppRuntime's GStreamer player), and opens files with the system's picker. As a program it plays through GStreamer on Cacao, its frames published from GStreamer's thread to an `ExternalSurface`, and through AVFoundation on Apple's SwiftUI; a program also opens the file or address it's given. No subtitles, choice of audio track, playlist or playback speed. Its guest bundle plays an address with sound in LinuxAppRuntime's host, through that host's GStreamer player; desktop full screen is untested under a window manager |
+| Browser | Guest | Tabs, and an address bar that goes to what's typed or searches for it (with DuckDuckGo, Startpage, Google or Bing), offering matching bookmarks and history as it's typed in; on a page of results it shows the search, and on a web page its host, with a lock over HTTPS. Back and forward, reload and stop, and a progress bar. Bookmarks, shown as favorites on a new tab with the pages gone to lately, can be renamed and moved; the history can be searched and cleared. The tabs, bookmarks, history and search engine are kept between runs, and only the tab shown loads at launch. As a guest its pages are AppRuntime's `WebView`, which LinuxAppRuntime's host draws with WPE WebKit; as a program they're WPE WebKit's on Cacao, through [PureSwift/WebKit](https://github.com/PureSwift/WebKit), and WKWebView on Apple's SwiftUI. A program also opens the address or search it's given. No downloads, private tabs, find in the page, zoom, or links that open new windows in tabs of their own, as Cacao's pages don't have them yet |
 
 The others in the plan aren't started.
 
@@ -69,7 +70,10 @@ swift test
 The native flavor needs what Cacao does: SDL3, and Cairo and FontConfig on
 Linux. The video player plays through GStreamer there, which it opens when
 a video is first loaded: with GStreamer and its base, good and libav
-plugins installed it plays, and without them a video fails to load.
+plugins installed it plays, and without them a video fails to load. The
+browser opens WPE WebKit the same way, when its first page loads: with
+`libwpewebkit-2.0-1` and `libwpebackend-fdo-1.0-1` installed it shows
+pages, and without them a page fails to load, saying so.
 
 ```sh
 swift run --traits Native calculator
@@ -83,6 +87,7 @@ swift run --traits Native contacts [vCard file to import]
 swift run --traits Native calendar [.ics file to import]
 swift run --traits Native maps [place to find]
 swift run --traits Native videos [file or address]
+swift run --traits Native browser [address or search]
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -101,6 +106,7 @@ Scripts/ios-simulator-app.sh contacts Contacts
 Scripts/ios-simulator-app.sh calendar Calendar
 Scripts/ios-simulator-app.sh maps Maps
 Scripts/ios-simulator-app.sh videos Videos
+Scripts/ios-simulator-app.sh browser Browser
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically
