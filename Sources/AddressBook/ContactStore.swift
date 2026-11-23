@@ -187,7 +187,9 @@ extension UTType {
 
     /// Tells Cacao's file dialogs what vCard files are called.
     static func declareVCard() {
-        #if Native
+        // Only Cacao's own UTType, on Linux, is told: on a Mac, Cacao's is
+        // Apple's, which knows the extension already.
+        #if Native && !canImport(UniformTypeIdentifiers)
         UTType.declareFilenameExtension("vcf", for: .vCardFile)
         #endif
     }
