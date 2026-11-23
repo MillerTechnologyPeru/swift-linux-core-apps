@@ -57,7 +57,7 @@ Size is relative: S is days of UI work on finished platform pieces, L needs a ne
 | Text editor | AppRuntime | Document picker; a text view in Cacao that handles large files, undo and find | L |
 | Video player | AppRuntime | `MediaPlayer` with video frames through `ExternalSurface` | L |
 | Web browser | AppRuntime | `WebKit` contract; tabs, downloads, history; touch scrolling and zoom in the web view | L |
-| Camera | AppRuntime | A `Camera` contract over PipeWire or V4L2; preview through `ExternalSurface` | L |
+| Camera | AppRuntime | A `Camera` contract over PipeWire or V4L2; preview through `ExternalSurface`. The app is written against AppRuntime's `Camera`; Linux capture, in LinuxAppRuntime and in Cacao, isn't | L |
 | Maps | AppRuntime | `Location`, `HTTPClient`; a tile renderer; a search and routing service | L |
 | Email client | AppRuntime | A TLS stream contract for IMAP and SMTP, or JMAP over `HTTPClient`; a secrets contract; background sync; MIME parsing in the guest; HTML bodies in a locked-down web view | L |
 | File manager | Native | Whole filesystem, mounts, trash, thumbnails; also hosts the system file picker | L |
