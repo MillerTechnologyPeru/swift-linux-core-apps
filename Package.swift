@@ -29,6 +29,7 @@ let package = Package(
     products: [
         // Guest products: what `guest.py` builds a bundle from.
         .library(name: "Calculator", type: .static, targets: ["Calculator"]),
+        .library(name: "Videos", type: .static, targets: ["Videos"]),
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
         .executable(name: "files", targets: ["FilesNative"]),
@@ -40,9 +41,11 @@ let package = Package(
         .executable(name: "contacts", targets: ["ContactsNative"]),
         .executable(name: "calendar", targets: ["CalendarNative"]),
         .executable(name: "maps", targets: ["MapsNative"]),
+        .executable(name: "videos", targets: ["VideosNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
+        .library(name: "AppMedia", targets: ["AppMedia"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
@@ -53,6 +56,7 @@ let package = Package(
         .library(name: "ContactsCore", targets: ["ContactsCore"]),
         .library(name: "CalendarCore", targets: ["CalendarCore"]),
         .library(name: "MapsCore", targets: ["MapsCore"]),
+        .library(name: "VideosCore", targets: ["VideosCore"]),
     ],
     traits: [
         .trait(
@@ -103,6 +107,17 @@ let package = Package(
         .target(
             name: "CoreAppsUI",
             dependencies: ["AppUI"]
+        ),
+        // Media playing, as the flavor has it, in AppRuntime's shape: its
+        // `DynamicMedia` for a guest, GStreamer to an `ExternalSurface` on
+        // Cacao, and AVFoundation on Apple's SwiftUI.
+        .target(
+            name: "AppMedia",
+            dependencies: [
+                "AppUI",
+                .product(name: "DynamicMedia", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+                .product(name: "DynamicFiles", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+            ]
         ),
 
         // MARK: - Calculator
@@ -357,6 +372,37 @@ let package = Package(
         .testTarget(
             name: "MapsCoreTests",
             dependencies: ["MapsCore"]
+        ),
+
+        // MARK: - Videos
+
+        // What the video player works out: times, the scrubber, the
+        // volume and what was opened. No UI and no Foundation, as it's a
+        // guest.
+        .target(
+            name: "VideosCore"
+        ),
+        // The player's views. A guest: AppRuntime's host decodes and shows
+        // the video, and the system's picker gives it files. As a program
+        // it plays through GStreamer on Cacao, where full screen is SDL's,
+        // or AVFoundation on Apple's SwiftUI.
+        .target(
+            name: "Videos",
+            dependencies: [
+                "AppUI", "CoreAppsUI", "AppMedia", "VideosCore",
+                .product(name: "DynamicDocuments", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+                .product(name: "SDL3Swift", package: "SDL", condition: .when(traits: ["Native"])),
+            ]
+        ),
+        .executableTarget(
+            name: "VideosNative",
+            dependencies: [
+                .target(name: "Videos", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "VideosCoreTests",
+            dependencies: ["VideosCore"]
         ),
     ]
 )
