@@ -139,7 +139,7 @@ The first wave is the seven apps to ship first: file manager, image viewer, musi
 | Prerequisite | Needed by | Comes from |
 | --- | --- | --- |
 | Cacao split and `ExternalSurface` | Video player, Web browser, Maps | Base phases 1 and 2. Done |
-| WebKit repo with the Cacao web view | Web browser | Base phase 5, which needs the JSC repo from base phase 4 |
+| WebKit repo with the Cacao web view | Web browser | [PureSwift/WebKit](https://github.com/PureSwift/WebKit): WPE WebKit opened at run time, without a JSC repo of its own. Its first phase is done |
 | Media stack choice and `MediaPlayer` on the Linux host | Music player, Video player | New; decision 5 |
 | Large-file text view on the shared text engine | Text editor | Base phase 6, text part only |
 | JPEG, WebP and HEIF decoders in Silica | Image viewer, File manager thumbnails | New |
@@ -177,7 +177,7 @@ Gate: each new contract passes one conformance test on both the Linux and Darwin
 3. **Music player.** Proves `MediaPlayer`, background playback and media keys.
 4. **Text editor.** Lands when the large-file text view does.
 5. **Video player.** Lands when video in `MediaPlayer` does.
-6. **Web browser.** Lands when the WebKit repo does.
+6. **Web browser.** Landed on PureSwift/WebKit's first phase, and AppRuntime's `WebView` for the guest.
 7. **Maps.** Last, because it also needs a tile renderer and outside services for search and routing.
 
 Items 2 to 4 need none of the base plan's engine work, so they can ship while base phases 4 and 5 are in progress.
