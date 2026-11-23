@@ -414,14 +414,14 @@ private final class PhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate, @unc
         } catch {
             return completion(.failure(.writeFailed))
         }
+        // The JPEG's own size, turned upright by the orientation it records.
         let dimensions = photo.resolvedSettings.photoDimensions
-        // The orientation the file records turns a sideways picture
-        // upright.
-        let orientation = (photo.metadata[kCGImagePropertyOrientation as String] as? NSNumber)?.intValue ?? 1
-        let sideways = orientation >= 5
-        completion(.success(sideways
-            ? (Int(dimensions.height), Int(dimensions.width))
-            : (Int(dimensions.width), Int(dimensions.height))))
+        let properties = CGImageSourceCreateWithData(data as CFData, nil)
+            .flatMap { CGImageSourceCopyPropertiesAtIndex($0, 0, nil) } as? [CFString: Any]
+        let width = (properties?[kCGImagePropertyPixelWidth] as? NSNumber)?.intValue ?? Int(dimensions.width)
+        let height = (properties?[kCGImagePropertyPixelHeight] as? NSNumber)?.intValue ?? Int(dimensions.height)
+        let orientation = (properties?[kCGImagePropertyOrientation] as? NSNumber)?.intValue ?? 1
+        completion(.success(orientation >= 5 ? (height, width) : (width, height)))
     }
 }
 
