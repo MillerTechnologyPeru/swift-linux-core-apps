@@ -30,6 +30,9 @@ rm -rf "$app"
 mkdir -p "$app"
 cp "$binary" "$app/$name"
 identifier=org.pureswift.$(printf '%s' "$product" | tr '[:upper:]' '[:lower:]')
+# Keys of the app's own, such as the camera's usage strings, from
+# Scripts/ios-info/<product>.plist: <key>s and their values, no <dict>.
+extra=$(cat "Scripts/ios-info/$product.plist" 2>/dev/null || true)
 
 cat > "$app/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -47,6 +50,7 @@ cat > "$app/Info.plist" <<PLIST
     <key>UILaunchScreen</key><dict/>
     <key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>
     <key>CFBundleSupportedPlatforms</key><array><string>iPhoneSimulator</string></array>
+$extra
 </dict>
 </plist>
 PLIST

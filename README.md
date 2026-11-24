@@ -56,6 +56,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Videos | Guest | Plays a video file, or one at an `http` or `https` address: play and pause, a scrubber with the time gone and the time left, skipping 10 seconds back and forward, volume and mute, and full screen with the controls over the picture at a tap. As a guest it plays through AppRuntime's `MediaPlayer`, which the host decodes and shows (on Linux, LinuxAppRuntime's GStreamer player), and opens files with the system's picker. As a program it plays through GStreamer on Cacao, its frames published from GStreamer's thread to an `ExternalSurface`, and through AVFoundation on Apple's SwiftUI; a program also opens the file or address it's given. No subtitles, choice of audio track, playlist or playback speed. Its guest bundle plays an address with sound in LinuxAppRuntime's host, through that host's GStreamer player; desktop full screen is untested under a window manager |
 | Browser | Guest | Tabs, and an address bar that goes to what's typed or searches for it (with DuckDuckGo, Startpage, Google or Bing), offering matching bookmarks and history as it's typed in; on a page of results it shows the search, and on a web page its host, with a lock over HTTPS. Back and forward, reload and stop, and a progress bar. Bookmarks, shown as favorites on a new tab with the pages gone to lately, can be renamed and moved; the history can be searched and cleared. The tabs, bookmarks, history and search engine are kept between runs, and only the tab shown loads at launch. As a guest its pages are AppRuntime's `WebView`, which LinuxAppRuntime's host draws with WPE WebKit; as a program they're WPE WebKit's on Cacao, through [PureSwift/WebKit](https://github.com/PureSwift/WebKit), and WKWebView on Apple's SwiftUI. A program also opens the address or search it's given. No downloads, private tabs, find in the page, zoom, or links that open new windows in tabs of their own, as Cacao's pages don't have them yet |
 | Software | Native | Flathub's catalog, read from the AppStream file Flatpak keeps, browsed by category and the apps updated lately, and searched by name, keywords and summary; each app's page has its description, what's new, license, size and website. Installs from Flathub (for the user when the user has Flathub as a remote, so no password is asked), opens, updates and removes Flatpak apps, lists their updates and updates them all. AppRuntime bundles are listed beside them, installed with LinuxAppRuntime's `linux-app` (picked, or given on the command line) and removed. Sources are the `flatpak` and `linux-app` programs, run directly: no plugin protocol yet, no OS updates, no progress while installing, and no screenshots, which are on Flathub's servers. On Apple's platforms, which have no Flatpak, it says so |
+| Camera | Guest | Photos and videos with sound, from the back, front or a plugged-in camera, filling the screen: zoom buttons for the lenses the camera's range reaches (0.5×, 1×, 2×…), a flash that's off, automatic or on, a recording's time, and the last capture beside the shutter. Captures are numbered `IMG_0001.jpg` and `VID_0002.mp4` in the app's documents, under `Captures`, and shown in a grid, one at a time and deleted. As a guest it uses AppRuntime's `Camera`, which the host runs and previews; as a program, AVFoundation on Apple's SwiftUI. Only the iOS Simulator has run it, which has no camera, so no photo or video has been taken. Its guest bundle builds, and LinuxAppRuntime's host refuses it, having neither the camera's contracts nor the drawing ones that show photos; Cacao's flavor has no camera either, and says so; videos don't play in the app; captures aren't added to the system's photos |
 
 The others in the plan aren't started.
 
@@ -90,6 +91,7 @@ swift run --traits Native maps [place to find]
 swift run --traits Native videos [file or address]
 swift run --traits Native browser [address or search]
 swift run --traits Native software [AppRuntime bundle to install]
+swift run --traits Native camera
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -110,6 +112,7 @@ Scripts/ios-simulator-app.sh maps Maps
 Scripts/ios-simulator-app.sh videos Videos
 Scripts/ios-simulator-app.sh browser Browser
 Scripts/ios-simulator-app.sh software Software
+Scripts/ios-simulator-app.sh camera Camera
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically

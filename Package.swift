@@ -31,6 +31,7 @@ let package = Package(
         .library(name: "Calculator", type: .static, targets: ["Calculator"]),
         .library(name: "Videos", type: .static, targets: ["Videos"]),
         .library(name: "Browser", type: .static, targets: ["Browser"]),
+        .library(name: "Viewfinder", type: .static, targets: ["Viewfinder"]),
         // Native programs.
         .executable(name: "calculator", targets: ["CalculatorNative"]),
         .executable(name: "files", targets: ["FilesNative"]),
@@ -45,11 +46,13 @@ let package = Package(
         .executable(name: "videos", targets: ["VideosNative"]),
         .executable(name: "browser", targets: ["BrowserNative"]),
         .executable(name: "software", targets: ["SoftwareNative"]),
+        .executable(name: "camera", targets: ["CameraNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
         .library(name: "AppMedia", targets: ["AppMedia"]),
         .library(name: "AppWeb", targets: ["AppWeb"]),
+        .library(name: "AppCamera", targets: ["AppCamera"]),
         .library(name: "CalculatorCore", targets: ["CalculatorCore"]),
         .library(name: "FilesCore", targets: ["FilesCore"]),
         .library(name: "ImagesCore", targets: ["ImagesCore"]),
@@ -63,6 +66,7 @@ let package = Package(
         .library(name: "VideosCore", targets: ["VideosCore"]),
         .library(name: "BrowserCore", targets: ["BrowserCore"]),
         .library(name: "SoftwareCore", targets: ["SoftwareCore"]),
+        .library(name: "CameraCore", targets: ["CameraCore"]),
     ],
     traits: [
         .trait(
@@ -139,6 +143,19 @@ let package = Package(
                 "AppUI",
                 .product(name: "DynamicWebKit", package: "AppRuntime", condition: .when(traits: ["Guest"])),
                 .product(name: "CacaoWebKit", package: "WebKit", condition: .when(traits: ["Native"])),
+            ]
+        ),
+        // A camera, as the flavor has it, in AppRuntime's shape: its
+        // `DynamicCamera` for a guest, with `DynamicFiles` for where
+        // captures go and `DynamicDrawing` to show them; AVFoundation on
+        // Apple's SwiftUI; and none yet on Cacao.
+        .target(
+            name: "AppCamera",
+            dependencies: [
+                "AppUI",
+                .product(name: "DynamicCamera", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+                .product(name: "DynamicFiles", package: "AppRuntime", condition: .when(traits: ["Guest"])),
+                .product(name: "DynamicDrawing", package: "AppRuntime", condition: .when(traits: ["Guest"])),
             ]
         ),
 
@@ -487,6 +504,37 @@ let package = Package(
         .testTarget(
             name: "SoftwareCoreTests",
             dependencies: ["SoftwareCore"]
+        ),
+
+        // MARK: - Camera
+
+        // What the camera works out: captures' names, the zoom buttons, the
+        // recording's time and the flash. No UI and no Foundation, as it's
+        // a guest.
+        .target(
+            name: "CameraCore"
+        ),
+        // The camera's views, named apart from the `Camera` they use. A
+        // guest: AppRuntime's host captures and shows the preview. As a
+        // program it captures with AVFoundation on Apple's SwiftUI, and on
+        // Cacao says there's no camera yet. Its views belong to the main
+        // actor in a program, as the cameras there do.
+        .target(
+            name: "Viewfinder",
+            dependencies: ["AppUI", "CoreAppsUI", "AppCamera", "CameraCore"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self, .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .executableTarget(
+            name: "CameraNative",
+            dependencies: [
+                .target(name: "Viewfinder", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "CameraCoreTests",
+            dependencies: ["CameraCore"]
         ),
     ]
 )
