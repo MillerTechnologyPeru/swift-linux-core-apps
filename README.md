@@ -10,8 +10,8 @@ The plan for the apps, and what exists so far, is in
 
 Most of the apps are [AppRuntime](https://github.com/PureSwift/AppRuntime)
 guests: Embedded Swift in a sandboxed bundle, drawing through AppRuntime's
-SwiftUI frontend. Two can't live in that sandbox (the file manager and the
-software store) and are programs on
+SwiftUI frontend. Three can't live in that sandbox (the file manager, the
+software store and Settings) and are programs on
 [Cacao](https://github.com/PureSwift/Cacao), SwiftUI in Swift.
 
 Every app is written once and builds either way, and a third way too: on
@@ -57,6 +57,7 @@ styles, `CoreAppsUI` wraps the difference.
 | Browser | Guest | Tabs, and an address bar that goes to what's typed or searches for it (with DuckDuckGo, Startpage, Google or Bing), offering matching bookmarks and history as it's typed in; on a page of results it shows the search, and on a web page its host, with a lock over HTTPS. Back and forward, reload and stop, and a progress bar. Bookmarks, shown as favorites on a new tab with the pages gone to lately, can be renamed and moved; the history can be searched and cleared. The tabs, bookmarks, history and search engine are kept between runs, and only the tab shown loads at launch. As a guest its pages are AppRuntime's `WebView`, which LinuxAppRuntime's host draws with WPE WebKit; as a program they're WPE WebKit's on Cacao, through [PureSwift/WebKit](https://github.com/PureSwift/WebKit), and WKWebView on Apple's SwiftUI. A program also opens the address or search it's given. No downloads, private tabs, find in the page, zoom, or links that open new windows in tabs of their own, as Cacao's pages don't have them yet |
 | Software | Native | Flathub's catalog, read from the AppStream file Flatpak keeps, browsed by category and the apps updated lately, and searched by name, keywords and summary; each app's page has its description, what's new, license, size and website. Installs from Flathub (for the user when the user has Flathub as a remote, so no password is asked), opens, updates and removes Flatpak apps, lists their updates and updates them all. AppRuntime bundles are listed beside them, installed with LinuxAppRuntime's `linux-app` (picked, or given on the command line) and removed. Sources are the `flatpak` and `linux-app` programs, run directly: no plugin protocol yet, no OS updates, no progress while installing, and no screenshots, which are on Flathub's servers. On Apple's platforms, which have no Flatpak, it says so |
 | Camera | Guest | Photos and videos with sound, from the back, front or a plugged-in camera, filling the screen: zoom buttons for the lenses the camera's range reaches (0.5×, 1×, 2×…), a flash that's off, automatic or on, a recording's time, and the last capture beside the shutter. Captures are numbered `IMG_0001.jpg` and `VID_0002.mp4` in the app's documents, under `Captures`, and shown in a grid, one at a time and deleted. As a guest it uses AppRuntime's `Camera`, which the host runs and previews; as a program, AVFoundation on Apple's SwiftUI. Only the iOS Simulator has run it, which has no camera, so no photo or video has been taken. Its guest bundle builds, and LinuxAppRuntime's host refuses it, having neither the camera's contracts nor the drawing ones that show photos; Cacao's flavor has no camera either, and says so; videos don't play in the app; captures aren't added to the system's photos |
+| Settings | Native | A sidebar of panes, one over the other at a phone's width. Appearance is the one that works: light, dark or automatic, an accent from GNOME's palette, higher contrast, the window buttons at the left, the right or GNOME's close alone, the interface and monospace fonts, and the icon and cursor themes installed and the cursor's size. It reads them through the settings portal (`org.freedesktop.portal.Settings`, or the settings service's own backend when no portal answers), follows `SettingChanged` so it stays in step, and changes them through [swift-linux-shell](https://github.com/MillerTechnologyPeru/swift-linux-shell)'s settings service, `org.pureswift.Cacao.Settings1.Set`, which every Cacao app, Perry's Mac apps and GNOME apps in a Flatpak follow live. Without the service it shows what the portal has, unchangeable, and says why. Wi-Fi, Bluetooth, Displays, Sound, Power, Default Apps and About are listed and say they aren't here yet. On Apple's platforms there's no session bus, which it says |
 
 The others in the plan aren't started.
 
@@ -76,6 +77,11 @@ plugins installed it plays, and without them a video fails to load. The
 browser opens WPE WebKit the same way, when its first page loads: with
 `libwpewebkit-2.0-1` and `libwpebackend-fdo-1.0-1` installed it shows
 pages, and without them a page fails to load, saying so.
+Settings reads the desktop's settings from the session bus, through
+`xdg-desktop-portal`, and changes them through swift-linux-shell's
+`CacaoSettings`, which it needs running to change anything. Its tests run a
+`dbus-daemon` of their own when one is installed, and skip the bus
+otherwise.
 
 ```sh
 swift run --traits Native calculator
@@ -92,6 +98,7 @@ swift run --traits Native videos [file or address]
 swift run --traits Native browser [address or search]
 swift run --traits Native software [AppRuntime bundle to install]
 swift run --traits Native camera
+swift run --traits Native settings
 ```
 
 On Apple's SwiftUI, for macOS and for the iOS Simulator (the script leaves
@@ -113,6 +120,7 @@ Scripts/ios-simulator-app.sh videos Videos
 Scripts/ios-simulator-app.sh browser Browser
 Scripts/ios-simulator-app.sh software Software
 Scripts/ios-simulator-app.sh camera Camera
+Scripts/ios-simulator-app.sh settings Settings
 ```
 
 The guest flavor and the apps' logic also build for Linux linked statically
