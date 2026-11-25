@@ -7,6 +7,13 @@
 //
 //     swift run --traits Native files [folder]
 //     swift run --traits Apple files [folder]
+//
+// On Cacao it also draws the desktop, as the session starts it: the
+// wallpaper and the Desktop folder's icons, in the background layer of the
+// screen. A PNG named with `--wallpaper` is drawn instead of the one chosen
+// from the desktop's menu.
+//
+//     files --desktop [--wallpaper image.png]
 
 #if Native || Apple
 

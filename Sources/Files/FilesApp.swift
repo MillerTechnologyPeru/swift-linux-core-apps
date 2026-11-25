@@ -31,8 +31,43 @@ public struct FilesApp: App {
         return url
     }
 
+    /// The window group of browsing windows, which the desktop opens
+    /// folders in.
+    static let browserID = "browser"
+
+    /// Whether the program also draws the desktop: `files --desktop`, as
+    /// the session starts it. The desktop is the first window then, in the
+    /// background layer of the screen, and folders opened from it get
+    /// windows of their own in the same program.
+    static var drawsDesktop: Bool {
+        CommandLine.arguments.dropFirst().contains("--desktop")
+    }
+
     public var body: some Scene {
-        #if Native || os(macOS)
+        #if Native
+        if Self.drawsDesktop {
+            WindowGroup("Desktop", id: "desktop") {
+                DesktopView()
+            }
+            // Anchored to every edge, so as big as the screen. An exclusive
+            // zone of -1 goes under the space the menu bar and dock keep,
+            // too. The keyboard comes only when the desktop is clicked, so
+            // starting it doesn't take focus from a window.
+            .defaultSize(width: 1280, height: 800)
+            .windowLayer(
+                .background,
+                edges: .all,
+                exclusiveZone: -1,
+                keyboardInteractivity: .onDemand,
+                namespace: "cacao-desktop"
+            )
+        }
+        // On a desktop the window opens at a phone's size.
+        WindowGroup("Files", id: Self.browserID, for: URL.self) { $folder in
+            BrowserView(opening: folder ?? Self.folderArgument)
+        }
+        .defaultSize(width: Metrics.phoneSize.width, height: Metrics.phoneSize.height)
+        #elseif os(macOS)
         // On a desktop the window opens at a phone's size.
         WindowGroup("Files") {
             BrowserView(opening: Self.folderArgument)
