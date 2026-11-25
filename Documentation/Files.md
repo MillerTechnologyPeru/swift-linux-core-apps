@@ -139,6 +139,22 @@ What the file manager does beside what GNOME Files does, feature by feature. The
 | "Volume is busy" | Missing | |
 | What to do when media is inserted | Missing: a Settings matter | |
 
+## Desktop
+
+`files --desktop` draws the desktop as well as opening Files windows: a window in the background layer of the screen (a layer-shell surface on sway, anchored to every edge, under the menu bar and dock), which takes the keyboard only when clicked. It replaces swift-linux-shell's stand-in `CacaoDesktop`.
+
+| GNOME (Desktop Icons) | Here | Tried |
+| --- | --- | --- |
+| Wallpaper | Done: a PNG chosen from the desktop's menu (from Pictures) or named with `--wallpaper`, else the accent gradient, light or dark | Sway |
+| The Desktop folder's items as icons | Done, read again every two seconds; no Desktop folder shows none | Sway |
+| Open with a double click | Done: folders in a Files window of the same program, files through `xdg-open` | Sway |
+| Select | Done, one at a time | Sway |
+| Drag to rearrange | Done, snapping to a grid; places are kept in `~/.config/files/desktop.json` | Sway |
+| New folder, move to trash | Done, from the menus | Sway |
+| Paste | Missing: Files has no clipboard shared between windows | |
+| Rename on the desktop, rubber band, several selected | Missing | |
+| Drop files onto the desktop | Missing: Cacao's drag and drop is within a window | |
+
 ## Preferences
 
 | GNOME Files | Here | Tried |
