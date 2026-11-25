@@ -149,6 +149,11 @@ public struct BrowserView: View {
     /// The bookmark being given a name.
     @State private var renamedBookmark: Bookmark?
 
+    #if Native
+    /// Disks from UDisks, to mount and eject.
+    @StateObject private var disks = VolumesModel()
+    #endif
+
     private let locations: [Location]
 
     /// - Parameter folder: A folder to show at first, over the locations.
@@ -179,6 +184,9 @@ public struct BrowserView: View {
                 if let name { model.renameBookmark(bookmark.url, to: name) }
             }
         }
+        #if Native
+        .task { await disks.follow() }
+        #endif
         .alert("Couldn't Do That", isPresented: failureIsShown) {
             Button("OK") { model.failure = nil }
         } message: {
@@ -218,6 +226,34 @@ public struct BrowserView: View {
                     }
                 }
             }
+            #if Native
+            if disks.usesUDisks {
+                if !disks.volumes.isEmpty {
+                    Section("Volumes") {
+                        ForEach(disks.volumes) { volume in
+                            VolumeRow(
+                                volume: volume,
+                                model: disks,
+                                open: { path = [.folder($0)] },
+                                fail: { model.failure = $0 }
+                            )
+                        }
+                    }
+                }
+            } else if !volumes.isEmpty {
+                mountedVolumes(volumes)
+            }
+            #else
+            if !volumes.isEmpty {
+                mountedVolumes(volumes)
+            }
+            #endif
+        }
+    }
+
+    /// The volumes mounted, as `/proc/self/mounts` lists them.
+    private func mountedVolumes(_ volumes: [Volume]) -> some View {
+        Group {
             if !volumes.isEmpty {
                 Section("Volumes") {
                     ForEach(volumes) { volume in
