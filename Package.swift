@@ -12,8 +12,8 @@ import PackageDescription
 ///   stays inside what a guest can use; AppRuntime's `Scripts/guest.py`
 ///   builds the bundle a host runs.
 /// - `Native`: a program on Cacao, for the apps that can't live in the
-///   bundle sandbox (the file manager and the software store), and for
-///   running any app on a desktop while working on it:
+///   bundle sandbox (the file manager, the software store and Settings),
+///   and for running any app on a desktop while working on it:
 ///   `swift run --traits Native calculator`.
 /// - `Apple`: a program on Apple's own SwiftUI, for macOS and iOS. It shows
 ///   an app as SwiftUI itself draws it, beside Cacao's drawing of the same
@@ -47,6 +47,7 @@ let package = Package(
         .executable(name: "browser", targets: ["BrowserNative"]),
         .executable(name: "software", targets: ["SoftwareNative"]),
         .executable(name: "camera", targets: ["CameraNative"]),
+        .executable(name: "settings", targets: ["SettingsNative"]),
         // Shared.
         .library(name: "AppUI", targets: ["AppUI"]),
         .library(name: "CoreAppsUI", targets: ["CoreAppsUI"]),
@@ -67,6 +68,7 @@ let package = Package(
         .library(name: "BrowserCore", targets: ["BrowserCore"]),
         .library(name: "SoftwareCore", targets: ["SoftwareCore"]),
         .library(name: "CameraCore", targets: ["CameraCore"]),
+        .library(name: "SettingsCore", targets: ["SettingsCore"]),
     ],
     traits: [
         .trait(
@@ -101,6 +103,13 @@ let package = Package(
         // WPE WebKit's pages in Cacao, for the browser on Cacao.
         .package(
             url: "https://github.com/PureSwift/WebKit.git",
+            branch: "master"
+        ),
+        // The session bus, for Settings to read and change the desktop's
+        // settings. The same package and branch Cacao follows the portal
+        // with.
+        .package(
+            url: "https://github.com/PureSwift/DBus.git",
             branch: "master"
         ),
     ],
@@ -535,6 +544,43 @@ let package = Package(
         .testTarget(
             name: "CameraCoreTests",
             dependencies: ["CameraCore"]
+        ),
+
+        // MARK: - Settings
+
+        // What Settings works out: the settings the portal serves, their
+        // values, the accents and window buttons to choose from, the
+        // themes installed, and the session bus calls that read and
+        // change them. It uses Foundation and D-Bus: Settings is a
+        // program, never a guest. Apple's platforms have no D-Bus package
+        // but on macOS, and iOS no session bus, so there it reads nothing.
+        .target(
+            name: "SettingsCore",
+            dependencies: [
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
+        ),
+        // Settings' views. Its views and model belong to the main actor,
+        // as SwiftUI's do.
+        .target(
+            name: "Settings",
+            dependencies: ["AppUI", "CoreAppsUI", "SettingsCore"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self, .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .executableTarget(
+            name: "SettingsNative",
+            dependencies: [
+                .target(name: "Settings", condition: .when(traits: ["Native", "Apple"])),
+            ]
+        ),
+        .testTarget(
+            name: "SettingsCoreTests",
+            dependencies: [
+                "SettingsCore",
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
         ),
     ]
 )
