@@ -17,9 +17,9 @@ What the file manager does beside what GNOME Files does, feature by feature. The
 | File operations | 12 | 2 | 6 |
 | Trash | 5 | 1 | 1 |
 | Properties and permissions | 7 | 1 | 2 |
-| Drives and volumes | 2 | 0 | 3 |
+| Drives and volumes | 4 | 0 | 1 |
 | Preferences | 3 | 0 | 3 |
-| **All** | **51** | **6** | **27** |
+| **All** | **53** | **6** | **25** |
 
 ## Navigation and sidebar
 
@@ -133,10 +133,11 @@ What the file manager does beside what GNOME Files does, feature by feature. The
 
 | GNOME Files | Here | Tried |
 | --- | --- | --- |
-| Mounted volumes in the sidebar | Done, from `/proc/self/mounts`, without the system's own and without network mounts | Tests only; the test machine has none |
-| Free space of each | Done | |
-| Mount and unmount, eject | Missing: needs UDisks | |
-| "Volume is busy" | Missing | |
+| Volumes in the sidebar | Done, from UDisks2 on the system bus, mounted or not, without the system's own; they follow disks coming and going. Without UDisks, the mounted ones from `/proc/self/mounts` | A disk image as a loop device, under sway |
+| Free space of each | Done | Sway |
+| Mount, unmount and eject | Done through UDisks2: a tap mounts and opens, the eject button unmounts and then ejects the media, powers the drive off or detaches the disk image; Unmount in the menu | Sway, with polkit allowing it |
+| Not allowed | Done: polkit's refusal is said plainly, naming the missing authentication agent | Sway, with no agent |
+| "Volume is busy" | Done, as UDisks reports it | Tests only |
 | What to do when media is inserted | Missing: a Settings matter | |
 
 ## Desktop
@@ -194,5 +195,4 @@ Files is the desktop portal's file chooser: xdg-desktop-portal hands it every ap
 1. **Operations off the main thread**, with progress, cancel and the conflict dialog. This is the largest gap in daily use.
 2. **Cacao work**: drag and drop, a file clipboard, keyboard shortcuts for the menus, multiple windows, and pictures from files for thumbnails.
 3. **Launch services** (phase A item 5 of the plan): open with, default programs, and what replaces `xdg-open`.
-4. **UDisks** for mounting and ejecting.
-5. **Recent files** and remembered preferences: small, with no dependencies.
+4. **Recent files** and remembered preferences: small, with no dependencies.
