@@ -1,0 +1,4 @@
+[portal]
+DBusName=org.freedesktop.impl.portal.desktop.cacao.files
+Interfaces=org.freedesktop.impl.portal.FileChooser;
+UseIn=Cacao

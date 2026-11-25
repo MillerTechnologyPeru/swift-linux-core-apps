@@ -155,6 +155,29 @@ What the file manager does beside what GNOME Files does, feature by feature. The
 | Rename on the desktop, rubber band, several selected | Missing | |
 | Drop files onto the desktop | Missing: Cacao's drag and drop is within a window | |
 
+## File chooser
+
+Files is the desktop portal's file chooser: xdg-desktop-portal hands it every app's Open and Save dialog (`org.freedesktop.impl.portal.FileChooser`), so a Cacao app, a Mac app on Perry (both through SDL's file dialogs) and a Flatpak GNOME app show the same one.
+
+- Bus name `org.freedesktop.impl.portal.desktop.cacao.files`, registered by `Data/cacao-files.portal` (`UseIn=Cacao`). The desktop's `portals.conf` routes to it with `org.freedesktop.impl.portal.FileChooser=cacao-files`.
+- D-Bus starts `files --file-chooser` for a request (`Data/org.freedesktop.impl.portal.desktop.cacao.files.service.in`). It opens a window per request and quits a minute after its last dialog closes. `files --desktop` serves the chooser too, when it gets the name first.
+- `cmake -S Data -B build && cmake --install build` installs both files, and the program with `-DFILES_EXECUTABLE=…`.
+- Each request has an `org.freedesktop.impl.portal.Request` object at its handle while it lasts; `Close` closes the dialog and ends the request with response 2.
+
+| Portal option | Here |
+| --- | --- |
+| `OpenFile`, `SaveFile`, `SaveFiles` | Done |
+| `multiple`, `directory` | Done: several files picked by clicking, or folders chosen instead of files |
+| `filters`, `current_filter` | Done: globs (with `[…]`) and MIME types guessed from the name extension, as a popup; folders always show |
+| `choices` | Done: popups, and checkboxes for choices without options |
+| `current_name`, `current_folder`, `current_file` | Done |
+| `accept_label` | Done, without its mnemonic's underscore |
+| `files` (`SaveFiles`) | Done: each name in the folder chosen |
+| Replacing an existing file | Asks first |
+| `modal`, `parent_window` | Not yet: the dialog is a window of its own, not attached to the app's |
+| Window title | The app's title shows in the dialog's header; the window is titled “Choose Files”, as Cacao has no per-window title |
+| Recent files, previews | Missing |
+
 ## Preferences
 
 | GNOME Files | Here | Tried |

@@ -382,3 +382,48 @@ private func exists(_ url: URL) -> Bool {
         }
     }
 }
+
+@Suite struct FileFilterTests {
+
+    @Test func globsMatchWholeNamesWhateverTheCase() {
+        #expect(FileFilter.glob("*.png", matches: "Sky.PNG"))
+        #expect(FileFilter.glob("*.png", matches: "sky.png.txt") == false)
+        #expect(FileFilter.glob("Report-??.txt", matches: "report-12.txt"))
+        #expect(FileFilter.glob("Report-??.txt", matches: "report-123.txt") == false)
+        #expect(FileFilter.glob("*", matches: "anything"))
+        #expect(FileFilter.glob("a*b*c", matches: "aXXbYYc"))
+    }
+
+    @Test func bracketsStandForOneOfTheirCharacters() {
+        #expect(FileFilter.glob("*.[jJ][pP][gG]", matches: "photo.jpg"))
+        #expect(FileFilter.glob("*.[jJ][pP][gG]", matches: "photo.JPG"))
+        #expect(FileFilter.glob("*.[jJ][pP][gG]", matches: "photo.png") == false)
+        #expect(FileFilter.glob("file[!0-9]", matches: "filea"))
+        #expect(FileFilter.glob("file[!a]", matches: "filea") == false)
+        #expect(FileFilter.glob("odd[", matches: "odd["))
+    }
+
+    @Test func mimeTypesComeFromTheNameExtension() {
+        #expect(MIMEType.guess(forFileName: "Sky.PNG") == "image/png")
+        #expect(MIMEType.guess(forFileName: "card.vcf") == "text/vcard")
+        #expect(MIMEType.guess(forFileName: "README") == nil)
+    }
+
+    @Test func typesMatchTheirFamiliesAndParents() {
+        #expect(MIMEType.is("image/png", a: "image/*"))
+        #expect(MIMEType.is("text/x-csrc", a: "text/plain"))
+        #expect(MIMEType.is("application/json", a: "text/plain"))
+        #expect(MIMEType.is("text/vcard", a: "text/x-vcard"))
+        #expect(MIMEType.is("image/jpeg", a: "image/jpg"))
+        #expect(MIMEType.is("image/png", a: "text/plain") == false)
+        #expect(MIMEType.is("application/pdf", a: "application/octet-stream"))
+    }
+
+    @Test func aFilterMatchesByAnyOfItsRules() {
+        let images = FileFilter(name: "Images", rules: [.mimeType("image/*"), .glob("*.xcf")])
+        #expect(images.matches("Sky.png"))
+        #expect(images.matches("drawing.xcf"))
+        #expect(images.matches("notes.txt") == false)
+        #expect(FileFilter(name: "None", rules: []).matches("a.txt") == false)
+    }
+}

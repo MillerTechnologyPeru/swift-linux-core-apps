@@ -189,6 +189,12 @@ struct DesktopView: View {
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
         }
         .task { await model.follow() }
+        .onAppear {
+            // The desktop is the file chooser too, while it runs: its
+            // dialogs open as windows of this program.
+            FileChooserHost.shared.register(openWindow)
+            Task { await FileChooserHost.serve() }
+        }
         .alert("Couldn't Do That", isPresented: failureIsShown) {
             Button("OK") { model.failure = nil }
         } message: {

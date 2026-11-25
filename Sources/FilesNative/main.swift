@@ -14,12 +14,25 @@
 // from the desktop's menu.
 //
 //     files --desktop [--wallpaper image.png]
+//
+// It is also the desktop portal's file chooser, which D-Bus starts with
+// `--file-chooser` for an app's request (`--desktop` serves it too):
+//
+//     files --file-chooser
 
 #if Native || Apple
 
 import Files
 
+#if Native
+if FilesApp.isFileChooser {
+    FilesApp.runFileChooser()
+} else {
+    FilesApp.main()
+}
+#else
 FilesApp.main()
+#endif
 
 #else
 

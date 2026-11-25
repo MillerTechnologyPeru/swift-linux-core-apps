@@ -199,9 +199,25 @@ let package = Package(
         .target(
             name: "FilesCore"
         ),
+        // The file manager as the desktop portal's file chooser: the
+        // requests and answers, and serving them on the session bus. It
+        // uses Foundation and D-Bus.
+        .target(
+            name: "FilesPortal",
+            dependencies: [
+                "FilesCore",
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
+        ),
+        // The file manager's views, its desktop, and its file chooser. On
+        // Cacao the chooser keeps running between dialogs, through the host.
         .target(
             name: "Files",
-            dependencies: ["AppUI", "CoreAppsUI", "FilesCore"]
+            dependencies: [
+                "AppUI", "CoreAppsUI", "FilesCore",
+                .target(name: "FilesPortal", condition: .when(traits: ["Native"])),
+                .product(name: "CacaoHost", package: "Cacao", condition: .when(traits: ["Native"])),
+            ]
         ),
         .executableTarget(
             name: "FilesNative",
@@ -212,6 +228,15 @@ let package = Package(
         .testTarget(
             name: "FilesCoreTests",
             dependencies: ["FilesCore"]
+        ),
+        // Runs a dbus-daemon of its own for the file chooser, when one is
+        // installed.
+        .testTarget(
+            name: "FilesPortalTests",
+            dependencies: [
+                "FilesPortal",
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
         ),
 
         // MARK: - Images
