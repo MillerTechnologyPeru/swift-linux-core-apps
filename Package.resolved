@@ -1,5 +1,5 @@
 {
-  "originHash" : "91a5a8043c7de81439e8fa9c1ee92a1528a911d3132e8e44744ef2a7a255520f",
+  "originHash" : "0ecbdf30b74b63a22f0714445f3e8e0930e58ab6dab0838d1ea529abd6c912ef",
   "pins" : [
     {
       "identity" : "android",
@@ -56,6 +56,15 @@
       }
     },
     {
+      "identity" : "dbus",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/DBus.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "d34567d64bb553a35e5b263f344c6963a5170ca3"
+      }
+    },
+    {
       "identity" : "fontconfig",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/PureSwift/FontConfig.git",
@@ -107,6 +116,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "42821487273805bfa879e2fcbffec57f059622b9"
+      }
+    },
+    {
+      "identity" : "socket",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PureSwift/Socket.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "5f74e4d29c614911dcba497cc049e0c7a05a198d"
       }
     },
     {
