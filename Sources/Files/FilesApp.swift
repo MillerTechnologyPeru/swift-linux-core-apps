@@ -43,8 +43,17 @@ public struct FilesApp: App {
         CommandLine.arguments.dropFirst().contains("--desktop")
     }
 
+    /// Whether the program is the desktop portal's file chooser alone:
+    /// `files --file-chooser`, as D-Bus starts it for a request.
+    public static var isFileChooser: Bool {
+        CommandLine.arguments.dropFirst().contains("--file-chooser")
+    }
+
     public var body: some Scene {
         #if Native
+        if Self.isFileChooser {
+            fileChooser
+        }
         if Self.drawsDesktop {
             WindowGroup("Desktop", id: "desktop") {
                 DesktopView()
@@ -67,6 +76,10 @@ public struct FilesApp: App {
             BrowserView(opening: folder ?? Self.folderArgument)
         }
         .defaultSize(width: Metrics.phoneSize.width, height: Metrics.phoneSize.height)
+        // The desktop shows the file chooser's dialogs too.
+        if !Self.isFileChooser {
+            fileChooser
+        }
         #elseif os(macOS)
         // On a desktop the window opens at a phone's size.
         WindowGroup("Files") {
@@ -80,6 +93,50 @@ public struct FilesApp: App {
         #endif
     }
 }
+
+#if Native
+
+extension FilesApp {
+
+    /// The file chooser's dialogs, a window for each request.
+    private var fileChooser: some Scene {
+        WindowGroup("Choose Files", id: FileChooserHost.windowID, for: String.self) { $handle in
+            FileChooserWindow(handle: $handle)
+        }
+        .defaultSize(width: 820, height: 540)
+    }
+
+    /// Runs the program as the desktop portal's file chooser: it serves
+    /// the portal on the session bus, opens its first window for the first
+    /// request, and quits a while after the last dialog closes. Requests
+    /// still open then are answered as ended.
+    public static func runFileChooser() {
+        let host = FileChooserHost.shared
+        host.reservesFirstRequest = true
+        let serving = ServingResult()
+        Task.detached {
+            serving.owns = await FileChooserHost.serve()
+            serving.done.signal()
+        }
+        serving.done.wait()
+        guard serving.owns else { exit(EXIT_FAILURE) }
+        // D-Bus started the program for a request, which comes at once.
+        guard host.firstRequest.wait(timeout: .now() + 30) == .success else { return }
+        main()
+        host.cancelAll()
+        host.waitForAnswers()
+    }
+}
+
+/// Whether the file chooser could start serving, from the task that tried.
+private final class ServingResult: @unchecked Sendable {
+
+    var owns = false
+
+    let done = DispatchSemaphore(value: 0)
+}
+
+#endif
 
 /// The places to browse from, and the folders opened from them, one over
 /// the other as on a phone.
