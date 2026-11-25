@@ -62,8 +62,9 @@ Size is relative: S is days of UI work on finished platform pieces, L needs a ne
 | Email client | AppRuntime | A TLS stream contract for IMAP and SMTP, or JMAP over `HTTPClient`; a secrets contract; background sync; MIME parsing in the guest; HTML bodies in a locked-down web view | L |
 | File manager | Native | Whole filesystem, mounts, trash, thumbnails; also hosts the system file picker | L |
 | Software store | Native | Installs and removes software, applies OS updates; plugin backends (below) | L |
+| Settings | Native | The desktop's settings service over D-Bus; NetworkManager, BlueZ, PipeWire and UPower for the panes after Appearance | L |
 
-Settings and a terminal are not in this list. The OS still needs at least a Settings app to join Wi-Fi and pair devices, so phase D assumes one exists or is added.
+A terminal is not in this list. The OS needs a Settings app to join Wi-Fi and pair devices, which phase D assumes. It is native, since it talks to system daemons. Its Appearance pane is written: it reads through the settings portal and changes settings through swift-linux-shell's settings service. Wi-Fi, Bluetooth, Displays, Sound, Power, Default Apps and About are listed, and say they are not here yet.
 
 ### Rule for future apps
 

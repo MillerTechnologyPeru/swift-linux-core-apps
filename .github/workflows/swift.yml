@@ -51,6 +51,7 @@ jobs:
           Scripts/ios-simulator-app.sh browser Browser
           Scripts/ios-simulator-app.sh software Software
           Scripts/ios-simulator-app.sh camera Camera
+          Scripts/ios-simulator-app.sh settings Settings
 
   # Linux on x86_64, with glibc: every flavor Linux has, and both programs
   # run far enough to draw a frame.
@@ -62,6 +63,7 @@ jobs:
       SDL_VERSION: release-3.4.8
     steps:
       - uses: actions/checkout@v4
+      # dbus-daemon gives the settings' tests a bus of their own.
       - name: Install dependencies
         run: |
           apt-get update
@@ -72,7 +74,7 @@ jobs:
             libwayland-dev wayland-protocols libdecor-0-dev libdrm-dev \
             libgbm-dev libegl-dev libgl-dev libgles-dev libvulkan-dev \
             libdbus-1-dev libudev-dev libpulse-dev libasound2-dev \
-            fonts-dejavu-core
+            fonts-dejavu-core dbus-daemon
       # Ubuntu 24.04 has no SDL3 package.
       - name: Cache SDL3
         id: cache-sdl3
@@ -123,6 +125,8 @@ jobs:
           CACAO_SCREENSHOT=software.png .build/debug/software
           # Cacao has no camera yet, which the camera says.
           CACAO_SCREENSHOT=camera.png .build/debug/camera
+          # No session bus in the container, which Settings says.
+          CACAO_SCREENSHOT=settings.png .build/debug/settings
 
   # Linux on arm64, linked statically against musl with Swift's static SDK:
   # the guest flavor and the apps' logic. Cacao's flavor isn't built this
