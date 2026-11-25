@@ -209,6 +209,16 @@ let package = Package(
                 .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
             ]
         ),
+        // Disks through UDisks2 on the system bus: the volumes it knows
+        // of, and mounting, unmounting and ejecting them. It uses
+        // Foundation and D-Bus.
+        .target(
+            name: "FilesVolumes",
+            dependencies: [
+                "FilesCore",
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
+        ),
         // The file manager's views, its desktop, and its file chooser. On
         // Cacao the chooser keeps running between dialogs, through the host.
         .target(
@@ -216,6 +226,7 @@ let package = Package(
             dependencies: [
                 "AppUI", "CoreAppsUI", "FilesCore",
                 .target(name: "FilesPortal", condition: .when(traits: ["Native"])),
+                .target(name: "FilesVolumes", condition: .when(traits: ["Native"])),
                 .product(name: "CacaoHost", package: "Cacao", condition: .when(traits: ["Native"])),
             ]
         ),
@@ -235,6 +246,15 @@ let package = Package(
             name: "FilesPortalTests",
             dependencies: [
                 "FilesPortal",
+                .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
+            ]
+        ),
+        // Runs a dbus-daemon of its own with a stand-in UDisks2, when one
+        // is installed.
+        .testTarget(
+            name: "FilesVolumesTests",
+            dependencies: [
+                "FilesVolumes",
                 .product(name: "DBus", package: "DBus", condition: .when(platforms: [.linux, .macOS])),
             ]
         ),
